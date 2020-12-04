@@ -7,7 +7,7 @@ import java.util.List;
 /**
  * https://docs.microsoft.com/en-us/windows/win32/wmisdk/swbemobject
  */
-public interface WmiObj extends GetActiveXComponent {
+public interface WmiObj extends GetActiveXComponent, GetWmiQualifiers {
     public default SWbemPropertySet getWmiProperties(){
         return new SWbemPropertySetImpl(this);
     }
@@ -18,4 +18,5 @@ public interface WmiObj extends GetActiveXComponent {
         return new SWbemMethodSetImpl(this);
     }
     public default List<WmiDerivation> getWmiDerivation(){ return WmiDerivation.of(this); }
+    public default SWbemQualifierSet getWmiQualifiers(){ return new SWbemQualifierSetImpl(this); }
 }

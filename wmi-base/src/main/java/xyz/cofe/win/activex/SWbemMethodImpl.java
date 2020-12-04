@@ -50,6 +50,8 @@ public class SWbemMethodImpl implements SWbemMethod {
 
         inParameters = new SWbemPropertySetImpl(paramsOf(ax,"InParameters", wmi));
         outParameters = new SWbemPropertySetImpl(paramsOf(ax,"OutParameters", wmi));
+
+        qualSet = new SWbemQualifierSetImpl(ax);
     }
 
     private static List<SWbemProperty> paramsOf(ActiveXMethods axMethod, String paramsPropertyName, Wmi wmi) {
@@ -92,6 +94,14 @@ public class SWbemMethodImpl implements SWbemMethod {
     }
 
     //region properties
+    //region wmiQualifiers : SWbemQualifierSet
+    protected SWbemQualifierSet qualSet;
+
+    @Override
+    public SWbemQualifierSet getWmiQualifiers() {
+        return qualSet;
+    }
+    //endregion
     //region name:String
     protected String name;
 

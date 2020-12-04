@@ -3,7 +3,7 @@ package xyz.cofe.win.activex;
 /**
  * <a href="https://docs.microsoft.com/ru-ru/windows/win32/wmisdk/swbemmethod">Описание метода</a>
  */
-public interface SWbemMethod {
+public interface SWbemMethod extends GetWmiQualifiers {
     /**
      * Возвращает имя метода
      * @return имя метода

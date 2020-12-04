@@ -31,18 +31,25 @@ public class SWbemPropertyImpl implements SWbemProperty {
             p.setVariant(value);
             p.wmi = wmi;
         });
+        qualSet = new SWbemQualifierSetImpl(ax);
     }
-
     public SWbemPropertyImpl(ActiveXMethods ax){
         this(ax,null);
     }
-
     public SWbemPropertyImpl configure(Consumer<SWbemPropertyImpl> conf){
         if( conf==null )throw new IllegalArgumentException("conf==null");
         conf.accept(this);
         return this;
     }
 
+    //region wmiQualifiers : SWbemQualifierSet
+    protected SWbemQualifierSet qualSet;
+
+    @Override
+    public SWbemQualifierSet getWmiQualifiers() {
+        return qualSet;
+    }
+    //endregion
     //region name
     protected String name;
 
@@ -103,7 +110,7 @@ public class SWbemPropertyImpl implements SWbemProperty {
         this.origin = origin;
     }
     //endregion
-
+    //region variant
     protected Variant variant;
 
     @Override
@@ -114,7 +121,8 @@ public class SWbemPropertyImpl implements SWbemProperty {
     public void setVariant(Variant variant) {
         this.variant = variant;
     }
-
+    //endregion
+    //region wmi
     protected Wmi wmi;
 
     public Optional<WmiObj> getReference(){
@@ -125,4 +133,5 @@ public class SWbemPropertyImpl implements SWbemProperty {
         }
         return Optional.empty();
     }
+    //endregion
 }

@@ -16,7 +16,7 @@ import java.util.Optional;
  * Объект SWbemProperty представляет отдельное свойство WMI управляемого объекта.
  * Этот объект не может быть создан с помощью вызова VBScript CreateObject.
  */
-public interface SWbemProperty {
+public interface SWbemProperty extends GetWmiQualifiers {
     /**
      * <pre>
      * SWbemProperty.Name property
