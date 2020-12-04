@@ -39,87 +39,10 @@
             <artifactId>iofun</artifactId>
             <version>1.0</version>
         </dependency>
-        <dependency>
-            <groupId>org.codehaus.groovy</groupId>
-            <artifactId>groovy</artifactId>
-            <version>${groovy.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.codehaus.groovy</groupId>
-            <artifactId>groovy-groovydoc</artifactId>
-            <version>${groovy.version}</version>
-            <optional>true</optional>
-<!--            <scope>provided</scope>-->
-        </dependency>
-<!--        <dependency>-->
-<!--            <groupId>org.codehaus.groovy</groupId>-->
-<!--            <artifactId>groovy-docgenerator</artifactId>-->
-<!--            <version>${groovy.version}</version>-->
-<!--        </dependency>-->
-        <dependency>
-            <groupId>org.codehaus.groovy</groupId>
-            <artifactId>groovy-templates</artifactId>
-            <version>${groovy.version}</version>
-            <optional>true</optional>
-<!--            <scope>provided</scope>-->
-        </dependency>
     </dependencies>
 
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.codehaus.gmavenplus</groupId>
-                <artifactId>gmavenplus-plugin</artifactId>
-                <version>1.11.0</version>
-                <executions>
-                    <execution>
-                        <id>putDlls</id>
-                        <phase>initialize</phase>
-                        <goals>
-                            <goal>execute</goal>
-                        </goals>
-                        <configuration>
-                            <scripts>
-                                <script>${project.basedir}/src/main/build/putdll.groovy</script>
-                            </scripts>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>compileGroovy</id>
-                        <goals>
-                            <goal>addSources</goal>
-                            <goal>addTestSources</goal>
-                            <!--
-                            <goal>generateStubs</goal>
-                            -->
-                            <goal>compile</goal>
-
-                            <!--
-                            <goal>generateTestStubs</goal>
-                            -->
-
-                            <goal>compileTests</goal>
-                            <!--
-                            <goal>removeStubs</goal>
-                            <goal>removeTestStubs</goal>
-                            -->
-                            <goal>groovydoc-jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <dependencies>
-                    <dependency>
-                        <groupId>xyz.cofe</groupId>
-                        <artifactId>fs</artifactId>
-                        <version>1.1</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>xyz.cofe</groupId>
-                        <artifactId>iofun</artifactId>
-                        <version>1.0</version>
-                    </dependency>
-                </dependencies>
-            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
@@ -147,30 +70,120 @@
                     </execution>
                 </executions>
             </plugin>
-<!--            <plugin>-->
-<!--                <groupId>org.codehaus.mojo</groupId>-->
-<!--                <artifactId>build-helper-maven-plugin</artifactId>-->
-<!--                <version>3.2.0</version>-->
-<!--                <executions>-->
-<!--                    <execution>-->
-<!--                        <id>attach-artifacts</id>-->
-<!--                        <phase>package</phase>-->
-<!--                        <goals>-->
-<!--                            <goal>attach-artifact</goal>-->
-<!--                        </goals>-->
-<!--                        <configuration>-->
-<!--                            <artifacts>-->
-<!--                                <artifact>-->
-<!--                                    <file>target/wmi-base-${project.version}-groovydoc.jar</file>-->
-<!--                                    <type>jar</type>-->
-<!--                                    <classifier>sources</classifier>-->
-<!--                                </artifact>-->
-<!--                            </artifacts>-->
-<!--                        </configuration>-->
-<!--                    </execution>-->
-<!--                </executions>-->
-<!--            </plugin>-->
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>downloadDll</id>
+            <activation>
+                <file>
+                    <missing>${project.basedir}/src/main/resources/jacob-dll/jacob-1.20-x64.dll</missing>
+                </file>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.gmavenplus</groupId>
+                        <artifactId>gmavenplus-plugin</artifactId>
+                        <version>1.11.0</version>
+                        <executions>
+                            <execution>
+                                <id>putDlls</id>
+                                <phase>initialize</phase>
+                                <goals>
+                                    <goal>execute</goal>
+                                </goals>
+                                <configuration>
+                                    <scripts>
+                                        <script>${project.basedir}/src/main/build/putdll.groovy</script>
+                                    </scripts>
+                                </configuration>
+                            </execution>
+                        </executions>
+                        <dependencies>
+                            <dependency>
+                                <groupId>xyz.cofe</groupId>
+                                <artifactId>fs</artifactId>
+                                <version>1.1</version>
+                            </dependency>
+                            <dependency>
+                                <groupId>xyz.cofe</groupId>
+                                <artifactId>iofun</artifactId>
+                                <version>1.0</version>
+                            </dependency>
+                            <dependency>
+                                <groupId>org.codehaus.groovy</groupId>
+                                <artifactId>groovy</artifactId>
+                                <version>${groovy.version}</version>
+                            </dependency>
+                        </dependencies>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <id>groovy</id>
+            <dependencies>
+                <dependency>
+                    <groupId>org.codehaus.groovy</groupId>
+                    <artifactId>groovy</artifactId>
+                    <version>${groovy.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>org.codehaus.groovy</groupId>
+                    <artifactId>groovy-groovydoc</artifactId>
+                    <version>${groovy.version}</version>
+                    <optional>true</optional>
+                </dependency>
+                <!-- ругаеться на отсуствие иконки -->
+                <!--        <dependency>-->
+                <!--            <groupId>org.codehaus.groovy</groupId>-->
+                <!--            <artifactId>groovy-docgenerator</artifactId>-->
+                <!--            <version>${groovy.version}</version>-->
+                <!--        </dependency>-->
+                <dependency>
+                    <groupId>org.codehaus.groovy</groupId>
+                    <artifactId>groovy-templates</artifactId>
+                    <version>${groovy.version}</version>
+                    <optional>true</optional>
+                </dependency>
+            </dependencies>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.gmavenplus</groupId>
+                        <artifactId>gmavenplus-plugin</artifactId>
+                        <version>1.11.0</version>
+                        <executions>
+                            <execution>
+                                <id>compileGroovy</id>
+                                <goals>
+                                    <goal>addSources</goal>
+                                    <goal>addTestSources</goal>
+                                    <!--
+                                    <goal>generateStubs</goal>
+                                    -->
+                                    <goal>compile</goal>
+
+                                    <!--
+                                    <goal>generateTestStubs</goal>
+                                    -->
+
+                                    <goal>compileTests</goal>
+                                    <!--
+                                    <goal>removeStubs</goal>
+                                    <goal>removeTestStubs</goal>
+                                    -->
+                                    <goal>groovydoc-jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
 </project>
