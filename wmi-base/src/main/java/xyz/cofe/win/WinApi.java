@@ -4,8 +4,8 @@ import com.jacob.activeX.ActiveXComponent;
 import com.jacob.com.Variant;
 import xyz.cofe.jacob.JacobDll;
 import xyz.cofe.win.activex.Apartment;
-import xyz.cofe.win.wmi.WMI;
-import xyz.cofe.win.wmi.WMIBase;
+import xyz.cofe.win.wmi.Wmi;
+import xyz.cofe.win.wmi.WmiBase;
 
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -50,7 +50,7 @@ public class WinApi {
         });
     }
 
-    public void wmi( Consumer<WMI> wmi ){
+    public void wmi( Consumer<Wmi> wmi ){
         wmi0(".", null, null, null, null, null, wmi );
     }
 
@@ -64,7 +64,7 @@ public class WinApi {
      * </ul>
      * @param client клиентский код
      */
-    protected void wmi0( String host, String namespace, String user, String password, String locale, String authority, Consumer<WMI> client ){
+    protected void wmi0( String host, String namespace, String user, String password, String locale, String authority, Consumer<Wmi> client ){
         if( client==null )throw new IllegalArgumentException("client==null");
 
         ActiveXComponent locator = new ActiveXComponent("WbemScripting.SWbemLocator");
@@ -141,7 +141,7 @@ public class WinApi {
         }
 
         if( services!=null ){
-            WMIBase wmiImpl = new WMIBase(services);
+            WmiBase wmiImpl = new WmiBase(services);
             client.accept(wmiImpl);
         }
     }

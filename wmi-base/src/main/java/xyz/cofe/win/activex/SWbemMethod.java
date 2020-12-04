@@ -1,7 +1,7 @@
 package xyz.cofe.win.activex;
 
 /**
- * Описание метода
+ * <a href="https://docs.microsoft.com/ru-ru/windows/win32/wmisdk/swbemmethod">Описание метода</a>
  */
 public interface SWbemMethod {
     /**

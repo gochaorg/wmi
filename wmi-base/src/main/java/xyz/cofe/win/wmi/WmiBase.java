@@ -1,23 +1,21 @@
 package xyz.cofe.win.wmi;
 
 import com.jacob.activeX.ActiveXComponent;
-import com.jacob.com.Dispatch;
 import com.jacob.com.EnumVariant;
 import com.jacob.com.Variant;
-import xyz.cofe.win.wmi.WMI;
 
 import java.util.function.Consumer;
 
-public class WMIBase implements WMI {
+public class WmiBase implements Wmi {
     protected volatile ActiveXComponent activeXComponent;
 
-    public WMIBase(ActiveXComponent activeXComponent){
+    public WmiBase(ActiveXComponent activeXComponent){
         if( activeXComponent==null )throw new IllegalArgumentException("activeXComponent==null");
         this.activeXComponent = activeXComponent;
     }
 
     @Override
-    public void execQuery(String query, Consumer<WMIObj> wmiObjectConsumer) {
+    public void execQuery(String query, Consumer<WmiObj> wmiObjectConsumer) {
         if( query==null )throw new IllegalArgumentException("query==null");
         if( wmiObjectConsumer==null )throw new IllegalArgumentException("wmiObjectConsumer==null");
 
@@ -34,13 +32,13 @@ public class WMIBase implements WMI {
                 wmiObjectConsumer.accept(null);
             }else{
                 ActiveXComponent xvIt = new ActiveXComponent(vIt.toDispatch());
-                wmiObjectConsumer.accept(new WMIObjImpl(xvIt,this));
+                wmiObjectConsumer.accept(new WmiObjImpl(xvIt,this));
             }
         }
     }
 
     @Override
-    public WMIObj getObject(String path) {
+    public WmiObj getObject(String path) {
         if( path==null )throw new IllegalArgumentException("path==null");
 
         ActiveXComponent ax1 = activeXComponent;
@@ -51,6 +49,6 @@ public class WMIBase implements WMI {
 
         ActiveXComponent ax = new ActiveXComponent(v.toDispatch());
 
-        return new WMIObjImpl(ax,this);
+        return new WmiObjImpl(ax,this);
     }
 }

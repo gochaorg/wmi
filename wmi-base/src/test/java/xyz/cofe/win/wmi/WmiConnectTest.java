@@ -3,13 +3,18 @@ package xyz.cofe.win.wmi;
 import com.jacob.activeX.ActiveXComponent;
 import com.jacob.com.Dispatch;
 import com.jacob.com.EnumVariant;
+import com.jacob.com.SafeArray;
 import com.jacob.com.Variant;
 import org.junit.jupiter.api.Test;
 import xyz.cofe.win.WinApi;
 import xyz.cofe.win.activex.ActiveXMethods;
 import xyz.cofe.win.activex.SWbemProperty;
 import xyz.cofe.win.activex.SWbemPropertyImpl;
+import xyz.cofe.win.activex.WmiDerivation;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class WmiConnectTest {
@@ -86,6 +91,10 @@ public class WmiConnectTest {
                     if( cnt.incrementAndGet()<2 ){
                         System.out.println(".......");
                         ActiveXComponent ax = obj.getActiveXComponent();
+
+                        obj.getWmiDerivation()
+                            .stream().map(WmiDerivation::getClazz)
+                            .forEach(System.out::println);
 
                         System.out.println("methods:");
                         EnumVariant enMethods = new EnumVariant(ax.invoke("Methods_").toDispatch());

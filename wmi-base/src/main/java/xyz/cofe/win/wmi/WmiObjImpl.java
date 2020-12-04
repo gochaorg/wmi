@@ -1,20 +1,18 @@
 package xyz.cofe.win.wmi;
 
 import com.jacob.activeX.ActiveXComponent;
-import com.jacob.com.Dispatch;
-import com.jacob.com.Variant;
 import xyz.cofe.win.activex.*;
 
-public class WMIObjImpl implements WMIObj {
+public class WmiObjImpl implements WmiObj {
     protected ActiveXComponent activeXComponent;
-    protected WMI wmi;
+    protected Wmi wmi;
 
-    public WMIObjImpl(ActiveXComponent activeXComponent){
+    public WmiObjImpl(ActiveXComponent activeXComponent){
         if( activeXComponent==null )throw new IllegalArgumentException("activeXComponent==null");
         this.activeXComponent = activeXComponent;
     }
 
-    public WMIObjImpl(ActiveXComponent activeXComponent, WMI wmi){
+    public WmiObjImpl(ActiveXComponent activeXComponent, Wmi wmi){
         if( activeXComponent==null )throw new IllegalArgumentException("activeXComponent==null");
         this.activeXComponent = activeXComponent;
         this.wmi = wmi;

@@ -4,7 +4,7 @@ import com.jacob.activeX.ActiveXComponent;
 import com.jacob.com.Dispatch;
 import com.jacob.com.EnumVariant;
 import com.jacob.com.Variant;
-import xyz.cofe.win.wmi.WMI;
+import xyz.cofe.win.wmi.Wmi;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,7 +14,7 @@ public class SWbemMethodImpl implements SWbemMethod {
     public SWbemMethodImpl(){
     }
 
-    public SWbemMethodImpl(ActiveXMethods ax, WMI wmi){
+    public SWbemMethodImpl(ActiveXMethods ax, Wmi wmi){
         if( ax==null )throw new IllegalArgumentException("ax==null");
         initProps(ax, wmi);
     }
@@ -24,7 +24,7 @@ public class SWbemMethodImpl implements SWbemMethod {
         initProps(ax, null);
     }
 
-    public SWbemMethodImpl(ActiveXComponent ax, WMI wmi){
+    public SWbemMethodImpl(ActiveXComponent ax, Wmi wmi){
         if( ax==null )throw new IllegalArgumentException("ax==null");
         initProps(ActiveXMethods.of(ax), wmi);
     }
@@ -34,7 +34,7 @@ public class SWbemMethodImpl implements SWbemMethod {
         initProps(ActiveXMethods.of(ax), null);
     }
 
-    public SWbemMethodImpl(GetActiveXComponent ax, WMI wmi){
+    public SWbemMethodImpl(GetActiveXComponent ax, Wmi wmi){
         if( ax==null )throw new IllegalArgumentException("ax==null");
         initProps(ActiveXMethods.of(ax.getActiveXComponent()), wmi);
     }
@@ -44,7 +44,7 @@ public class SWbemMethodImpl implements SWbemMethod {
         initProps(ActiveXMethods.of(ax.getActiveXComponent()), null);
     }
 
-    private void initProps(ActiveXMethods ax, WMI wmi) {
+    private void initProps(ActiveXMethods ax, Wmi wmi) {
         name = ax.getProperty("Name").getString();
         origin = ax.getProperty("Origin").getString();
 
@@ -52,7 +52,7 @@ public class SWbemMethodImpl implements SWbemMethod {
         outParameters = new SWbemPropertySetImpl(paramsOf(ax,"OutParameters", wmi));
     }
 
-    private static List<SWbemProperty> paramsOf(ActiveXMethods axMethod, String paramsPropertyName, WMI wmi) {
+    private static List<SWbemProperty> paramsOf(ActiveXMethods axMethod, String paramsPropertyName, Wmi wmi) {
         Variant vParameters = axMethod.getProperty(paramsPropertyName);
         Dispatch dInParameters = vParameters!=null && !vParameters.isNull() ?
             vParameters.toDispatch() : null;

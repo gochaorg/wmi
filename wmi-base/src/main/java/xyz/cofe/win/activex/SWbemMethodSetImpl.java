@@ -4,7 +4,7 @@ import com.jacob.activeX.ActiveXComponent;
 import com.jacob.com.Dispatch;
 import com.jacob.com.EnumVariant;
 import com.jacob.com.Variant;
-import xyz.cofe.win.wmi.WMI;
+import xyz.cofe.win.wmi.Wmi;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -17,7 +17,7 @@ public class SWbemMethodSetImpl implements SWbemMethodSet {
         this.methods = new ArrayList<>();
     }
 
-    public SWbemMethodSetImpl(ActiveXMethods ax, WMI wmi){
+    public SWbemMethodSetImpl(ActiveXMethods ax, Wmi wmi){
         if( ax==null )throw new IllegalArgumentException("ax==null");
         initMethods(ax,wmi);
     }
@@ -27,7 +27,7 @@ public class SWbemMethodSetImpl implements SWbemMethodSet {
         initMethods(ax,null);
     }
 
-    public SWbemMethodSetImpl(GetActiveXComponent ax, WMI wmi){
+    public SWbemMethodSetImpl(GetActiveXComponent ax, Wmi wmi){
         if( ax==null )throw new IllegalArgumentException("ax==null");
         initMethods(ActiveXMethods.of(ax.getActiveXComponent()),wmi);
     }
@@ -37,7 +37,7 @@ public class SWbemMethodSetImpl implements SWbemMethodSet {
         initMethods(ActiveXMethods.of(ax.getActiveXComponent()),null);
     }
 
-    private void initMethods(ActiveXMethods ax, WMI wmi) {
+    private void initMethods(ActiveXMethods ax, Wmi wmi) {
         methods = new ArrayList<>();
         Variant vMethods = ax.invoke("Methods_");
         Dispatch dMethods = vMethods!=null && !vMethods.isNull() ? vMethods.toDispatch() : null;

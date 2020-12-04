@@ -1,7 +1,7 @@
 package xyz.cofe.win.activex;
 
 import com.jacob.com.Variant;
-import xyz.cofe.win.wmi.WMIObj;
+import xyz.cofe.win.wmi.WmiObj;
 
 import java.util.Optional;
 
@@ -109,5 +109,5 @@ public interface SWbemProperty {
      * Ссылка на объект, актуально для тех свойств, чей тип (getCIMType) {@link WbemCIMType#REFERENCE}
      * @return объект
      */
-    Optional<WMIObj> getReference();
+    Optional<WmiObj> getReference();
 }

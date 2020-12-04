@@ -2,10 +2,12 @@ package xyz.cofe.win.wmi;
 
 import xyz.cofe.win.activex.*;
 
+import java.util.List;
+
 /**
  * https://docs.microsoft.com/en-us/windows/win32/wmisdk/swbemobject
  */
-public interface WMIObj extends GetActiveXComponent {
+public interface WmiObj extends GetActiveXComponent {
     public default SWbemPropertySet getWmiProperties(){
         return new SWbemPropertySetImpl(this);
     }
@@ -15,4 +17,5 @@ public interface WMIObj extends GetActiveXComponent {
     public default SWbemMethodSet getWmiMethods(){
         return new SWbemMethodSetImpl(this);
     }
+    public default List<WmiDerivation> getWmiDerivation(){ return WmiDerivation.of(this); }
 }

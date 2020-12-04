@@ -3,7 +3,7 @@ package xyz.cofe.win.activex;
 import com.jacob.activeX.ActiveXComponent;
 import com.jacob.com.EnumVariant;
 import com.jacob.com.Variant;
-import xyz.cofe.win.wmi.WMI;
+import xyz.cofe.win.wmi.Wmi;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -16,7 +16,7 @@ public class SWbemPropertySetImpl implements SWbemPropertySet {
         propertyList = new ArrayList<>();
     }
 
-    public SWbemPropertySetImpl(ActiveXMethods ax, WMI wmi){
+    public SWbemPropertySetImpl(ActiveXMethods ax, Wmi wmi){
         if( ax==null )throw new IllegalArgumentException("ax==null");
         initProps(ax, wmi);
     }
@@ -25,7 +25,7 @@ public class SWbemPropertySetImpl implements SWbemPropertySet {
         this(ax,null);
     }
 
-    public SWbemPropertySetImpl(GetActiveXComponent ax, WMI wmi){
+    public SWbemPropertySetImpl(GetActiveXComponent ax, Wmi wmi){
         if( ax==null )throw new IllegalArgumentException("ax==null");
         initProps(ActiveXMethods.of(ax.getActiveXComponent()), wmi);
     }
@@ -41,7 +41,7 @@ public class SWbemPropertySetImpl implements SWbemPropertySet {
         props.forEach(propertyList::add);
     }
 
-    private void initProps(ActiveXMethods ax, WMI wmi) {
+    private void initProps(ActiveXMethods ax, Wmi wmi) {
         propertyList = new ArrayList<>();
         EnumVariant en = new EnumVariant(ax.invoke("Properties_").toDispatch());
         while( en.hasMoreElements() ){

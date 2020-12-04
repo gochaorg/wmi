@@ -1,8 +1,8 @@
 package xyz.cofe.win.activex;
 
 import com.jacob.com.Variant;
-import xyz.cofe.win.wmi.WMI;
-import xyz.cofe.win.wmi.WMIObj;
+import xyz.cofe.win.wmi.Wmi;
+import xyz.cofe.win.wmi.WmiObj;
 
 import java.util.Arrays;
 import java.util.Optional;
@@ -13,7 +13,7 @@ public class SWbemPropertyImpl implements SWbemProperty {
     public SWbemPropertyImpl(){
     }
 
-    public SWbemPropertyImpl(ActiveXMethods ax, WMI wmi){
+    public SWbemPropertyImpl(ActiveXMethods ax, Wmi wmi){
         if( ax==null )throw new IllegalArgumentException("ax==null");
         configure(p -> {
             p.setName(ax.invoke("Name").getString());
@@ -115,10 +115,10 @@ public class SWbemPropertyImpl implements SWbemProperty {
         this.variant = variant;
     }
 
-    protected WMI wmi;
+    protected Wmi wmi;
 
-    public Optional<WMIObj> getReference(){
-        WMI wmi1 = wmi;
+    public Optional<WmiObj> getReference(){
+        Wmi wmi1 = wmi;
         Variant v1 = variant;
         if( wmi1!=null && v1!=null && !v1.isNull() ){
             return Optional.of(wmi1.getObject(v1.toString()));
