@@ -28,17 +28,40 @@ public class WmiBase implements Wmi {
 
         // SWbemObjectSet
         Variant rset = ax1.invoke("ExecQuery",new Variant(query));
+        each(rset,wmiObjectConsumer);
+    }
 
-        EnumVariant enumVariant = new EnumVariant(rset.toDispatch());
-        while( enumVariant.hasMoreElements() ){
-            Variant vIt = enumVariant.nextElement();
-            if( vIt==null || vIt.isNull() ){
-                wmiObjectConsumer.accept(null);
-            }else{
-                ActiveXComponent xvIt = new ActiveXComponent(vIt.toDispatch());
-                wmiObjectConsumer.accept(new WmiObjImpl(xvIt,this));
-            }
-        }
+    public void execQuery(
+        String query,
+        int flags,
+        Consumer<WmiObj> wmiObjectConsumer
+    ) {
+        execQuery(query,Optional.empty(),Optional.of(flags),wmiObjectConsumer);
+    }
+
+    @SuppressWarnings({"OptionalAssignedToNull"})
+    public void execQuery(
+        String query,
+        Optional<String> queryLanguage,
+        Optional<Integer> flags,
+        Consumer<WmiObj> wmiObjectConsumer
+    ) {
+        if( query==null )throw new IllegalArgumentException("query==null");
+        if( queryLanguage==null )throw new IllegalArgumentException("queryLanguage==null");
+        if( flags==null )throw new IllegalArgumentException("flags==null");
+        if( wmiObjectConsumer==null )throw new IllegalArgumentException("wmiObjectConsumer==null");
+
+        ActiveXComponent ax1 = activeXComponent;
+        if( ax1==null )throw new IllegalStateException("activeXComponent is null");
+
+        // SWbemObjectSet
+        Variant rset = ax1.invoke(
+            "ExecQuery",
+            new Variant(query),
+            queryLanguage.map(Variant::new).orElse(Variant.DEFAULT),
+            flags.map(Variant::new).orElse(Variant.DEFAULT)
+        );
+        each(rset,wmiObjectConsumer);
     }
 
     @Override
@@ -56,6 +79,7 @@ public class WmiBase implements Wmi {
         return new WmiObjImpl(ax,this);
     }
 
+    //region subclassesOf()
     @Override
     public List<WmiObj> subclassesOf() {
         ArrayList<WmiObj> list = new ArrayList<>();
@@ -134,6 +158,7 @@ public class WmiBase implements Wmi {
 
         each(vRes, consumer);
     }
+    //endregion
 
     private void each(Variant wmiCollection, Consumer<WmiObj> consumer) {
         Dispatch dRes = wmiCollection !=null && !wmiCollection.isNull() ?
@@ -154,6 +179,7 @@ public class WmiBase implements Wmi {
         }
     }
 
+    //region associatorsOf()
     public void associatorsOf(
         String objectPath,
         Consumer<WmiObj> client
@@ -444,6 +470,7 @@ public class WmiBase implements Wmi {
         );
     }
 
+    @SuppressWarnings("OptionalAssignedToNull")
     public void associatorsOf(
         String objectPath,
         Optional<String> assocClass,
@@ -486,10 +513,121 @@ public class WmiBase implements Wmi {
         );
         each(v,client);
     }
+    //endregion
 
+    /**
+     * возвращает экземпляры указанного класса в соответствии с заданными пользователем критериями выбора
+     * @param clazz Строка, содержащая имя класса, для которого требуются экземпляры
+     * @param client клиент
+     */
+    public void instancesOf( String clazz, Consumer<WmiObj> client ){
+        if( clazz==null )throw new IllegalArgumentException("clazz==null");
+        if( client==null )throw new IllegalArgumentException("client==null");
+        instancesOf(clazz, Optional.empty(), client);
+    }
+
+    /**
+     * возвращает экземпляры указанного класса в соответствии с заданными пользователем критериями выбора
+     * @param clazz Строка, содержащая имя класса, для которого требуются экземпляры
+     * @param flags флаги
+     * @param client клиент
+     */
+    public void instancesOf( String clazz, int flags, Consumer<WmiObj> client ){
+        if( clazz==null )throw new IllegalArgumentException("clazz==null");
+        if( client==null )throw new IllegalArgumentException("client==null");
+        instancesOf(clazz, Optional.of(flags), client);
+    }
+
+    /**
+     * The InstancesOf method of the SWbemServices object creates an enumerator
+     * that returns the instances of a specified class according to the user-specified selection criteria.
+     *
+     * <p>Метод InstancesOf объекта SWbemServices создает перечислитель.
+     * который возвращает экземпляры указанного класса в соответствии с заданными пользователем критериями выбора.
+     *
+     * <br>This method implements a simple query. More complex queries may require the use of SWbemServices.ExecQuery.
+     * <br>Этот метод реализует простой запрос. Более сложные запросы могут потребовать использования SWbemServices.ExecQuery.
+     *
+     * <p>Error codes
+     *
+     * <br>Upon the completion of the InstancesOf method, the Err object may contain one of the error codes in the following list.
+     *
+     * <br>Note
+     *
+     * <br>A returned enumerator with zero elements is not an error.
+     *
+     * <ul>
+     * <li>wbemErrAccessDenied - 2147749891 (0x80041003)
+     *     <br>Current user does not have the permission to view instances of the specified class.
+     *
+     * <li>wbemErrFailed - 2147749889 (0x80041001)
+     *     <br>Unspecified error occurred.
+     *
+     * <li>wbemErrInvalidClass - 2147749904 (0x80041010)
+     *     <br>Specified class is not valid.
+     *
+     * <li>wbemErrInvalidParameter - 2147749896 (0x80041008)
+     *     <br>A specified parameter is not valid.
+     *
+     * <li>wbemErrOutOfMemory - 2147749894 (0x80041006)
+     *     <br>Not enough memory to complete the operation.
+     * </ul>
+     *
+     * @param clazz
+     *      Required. String that contains the name of the class for which instances are desired. This parameter cannot be blank.
+     *      <br>Необходимые. Строка, содержащая имя класса, для которого требуются экземпляры. Этот параметр не может быть пустым.
+     * @param flags
+     *      This parameter determines how detailed the call enumerates and if this call returns immediately. The default value for this parameter is wbemFlagReturnImmediately. This parameter can accept the following values.
+     *
+     *      <ul>
+     *      <li>wbemFlagForwardOnly (32 (0x20))
+     *        <br>Causes a forward-only enumerator to be returned. Forward-only enumerators are generally much faster and use less memory than conventional enumerators, but they do not allow calls to SWbemObject.Clone_.
+     *        <br>Вызывает возвращение перечислителя только для пересылки. Перечислители, работающие только в прямом направлении, обычно намного быстрее и используют меньше памяти, чем обычные перечислители, но они не позволяют вызывать SWbemObject.Clone_.
+     *
+     *      <li>wbemFlagBidirectional (0 (0x0))
+     *        <br>Causes WMI to retain pointers to objects of the enumeration until the client releases the enumerator.
+     *        <br>Заставляет WMI сохранять указатели на объекты перечисления до тех пор, пока клиент не освободит перечислитель.
+     *
+     *      <li>wbemFlagReturnImmediately (16 (0x10))
+     *        <br>Default value for this parameter. This flag causes the call to return immediately.
+     *        <br>Значение по умолчанию для этого параметра. Этот флаг вызывает немедленный возврат вызова.
+     *
+     *      <li>wbemFlagReturnWhenComplete (0 (0x0))
+     *        <br>Causes this call to block until the query has completed. This flag calls the method in the synchronous mode.
+     *        <br>Вызывает блокировку этого вызова до завершения запроса. Этот флаг вызывает метод в синхронном режиме.
+     *
+     *      <li>wbemQueryFlagShallow (1 (0x1))
+     *        <br>Forces the enumeration to include only immediate subclasses of the specified parent class.
+     *        <br>Заставляет перечисление включать только непосредственные подклассы указанного родительского класса.
+     *
+     *      <li>wbemQueryFlagDeep (0 (0x0))
+     *        <br>Default value for this parameter. This value forces the enumeration to include all classes in the hierarchy.
+     *        <br>Значение по умолчанию для этого параметра. Это значение заставляет перечисление включать все классы в иерархии.
+     *
+     *      <li>wbemFlagUseAmendedQualifiers (131072 (0x20000))
+     *        <br>Causes WMI to return class amendment data with the base class definition. For more information
+     *        <br>Заставляет WMI возвращать данные об изменении класса с определением базового класса. Для дополнительной информации
+     *      </ul>
+     * @param client
+     *      Клиентский код
+     */
+    @SuppressWarnings({"OptionalUsedAsFieldOrParameterType", "OptionalAssignedToNull"})
     public void instancesOf(
+        String clazz,
+        Optional<Integer> flags,
         Consumer<WmiObj> client
     ){
+        if( clazz==null )throw new IllegalArgumentException("clazz==null");
+        if( flags==null )throw new IllegalArgumentException("flags==null");
+        if( client==null )throw new IllegalArgumentException("client==null");
 
+        ActiveXComponent ax = activeXComponent;
+        if( ax==null )throw new IllegalStateException("activeXComponent is null");
+
+        Variant v = ax.invoke("InstancesOf",
+            new Variant(clazz),
+            flags.map(Variant::new).orElse(Variant.DEFAULT)
+        );
+        each(v,client);
     }
 }

@@ -1,5 +1,6 @@
 package xyz.cofe.win.wmi;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -8,12 +9,90 @@ import java.util.function.Consumer;
  * Выполнение запросов к <a href="https://docs.microsoft.com/en-us/windows/win32/wmisdk/swbemservices">WMI сервису</a>
  */
 public interface Wmi {
+    //region execQuery()
     /**
      * Выполнение WQL запроса
      * @param query запрос
      * @param wmiObjectConsumer приемник выборки
+     * @see #execQuery(String, Optional, Optional, Consumer)
      */
     void execQuery(String query, Consumer<WmiObj> wmiObjectConsumer);
+
+    /**
+     * Выполнение WQL запроса
+     * @param query запрос
+     * @return результат выборки
+     * @see #execQuery(String, Optional, Optional, Consumer)
+     */
+    public default List<WmiObj> execQuery(String query){
+        if( query==null )throw new IllegalArgumentException("query==null");
+        ArrayList<WmiObj> lst = new ArrayList<>();
+        execQuery(query,lst::add);
+        return lst;
+    }
+
+    /**
+     * Выполнение WQL запроса
+     * @param query запрос
+     * @param flags флаги
+     * @param wmiObjectConsumer приемник выборки
+     * @see #execQuery(String, Optional, Optional, Consumer)
+     */
+    public void execQuery(
+        String query,
+        int flags,
+        Consumer<WmiObj> wmiObjectConsumer
+    );
+
+    /**
+     * Выполнение WQL запроса
+     * @param query запрос
+     * @param flags флаги
+     * @return результат выборки
+     * @see #execQuery(String, Optional, Optional, Consumer)
+     */
+    public default List<WmiObj> execQuery(String query, int flags){
+        if( query==null )throw new IllegalArgumentException("query==null");
+        ArrayList<WmiObj> lst = new ArrayList<>();
+        execQuery(query,flags,lst::add);
+        return lst;
+    }
+
+    /**
+     * The ExecQuery method of the SWbemServices object executes a query to retrieve objects. These objects are available through the returned SWbemObjectSet collection.
+     * @param query Required. String that contains the text of the query. This parameter cannot be blank. For more information on building WMI query strings, see Querying with WQL and the WQL reference.
+     * @param queryLanguage String that contains the query language to be used. If specified, this value must be "WQL".
+     * @param flags Integer that determines the behavior of the query and determines whether this call returns immediately. The default value for this parameter is wbemFlagReturnImmediately. This parameter can accept the following values.
+     *              <ul>
+     *              <li>wbemFlagForwardOnly (32 (0x20))
+     *                <br> Causes a forward-only enumerator to be returned. Forward-only enumerators are generally much faster and use less memory than conventional enumerators, but they do not allow calls to SWbemObject.Clone_.
+     *                <br> Вызывает возвращение перечислителя только для пересылки. Перечислители, работающие только в прямом направлении, обычно намного быстрее и используют меньше памяти, чем обычные перечислители, но они не позволяют вызывать SWbemObject.Clone_.
+     *              <li>wbemFlagBidirectional (0 (0x0))
+     *                <br> Causes WMI to retain pointers to objects of the enumeration until the client releases the enumerator.
+     *                <br> Заставляет WMI сохранять указатели на объекты перечисления до тех пор, пока клиент не освободит перечислитель.
+     *              <li>wbemFlagReturnImmediately (16 (0x10))
+     *                <br> Causes the call to return immediately.
+     *                <br> Вызывает немедленный возврат вызова.
+     *              <li>wbemFlagReturnWhenComplete (0 (0x0))
+     *                <br> Causes this call to block until the query is complete. This flag calls the method in the synchronous mode.
+     *                <br> Вызывает блокировку этого вызова до завершения запроса. Этот флаг вызывает метод в синхронном режиме.
+     *              <li>wbemQueryFlagPrototype (2 (0x2))
+     *                <br> Used for prototyping. This flag stops the query from happening and returns an object that looks like a typical result object.
+     *                <br> Используется для прототипирования. Этот флаг останавливает выполнение запроса и возвращает объект, который выглядит как типичный объект результата.
+     *              <li>wbemFlagUseAmendedQualifiers (131072 (0x20000))
+     *                <br> Causes WMI to return class amendment data with the base class definition. For more information, see Localizing WMI Class Information.
+     *                <br> Заставляет WMI возвращать данные об изменении класса с определением базового класса. Дополнительные сведения см. В разделе «Локализация информации о классе WMI».
+     *              </ul>
+     * @param wmiObjectConsumer приемник выборки
+     */
+    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+    public void execQuery(
+        String query,
+        Optional<String> queryLanguage,
+        Optional<Integer> flags,
+        Consumer<WmiObj> wmiObjectConsumer
+    );
+    //endregion
 
     /**
      * Получение объекта по его WMI "пути"
@@ -22,6 +101,7 @@ public interface Wmi {
      */
     WmiObj getObject(String path);
 
+    //region subclassesOf()
     /**
      * <a href="https://docs.microsoft.com/en-us/windows/win32/wmisdk/swbemservices-subclassesof">Получение списка дочерних классов</a>
      * @return классы
@@ -63,7 +143,9 @@ public interface Wmi {
      * @param consumer дочерние классы
      */
     public void subclassesOf(String superclass, int flags, Consumer<WmiObj> consumer);
+    //endregion
 
+    //region associatorsOf()
     /**
      * Получение ассоциированных объектов.
      * @param objectPath WMI путь
@@ -74,6 +156,20 @@ public interface Wmi {
         String objectPath,
         Consumer<WmiObj> client
     );
+
+    public default List<WmiObj> associatorsOf(
+        String objectPath
+    ){
+        if( objectPath==null )throw new IllegalArgumentException("objectPath==null");
+        return associatorsOf(
+            objectPath,
+            Optional.empty(),Optional.empty(),
+            Optional.empty(),Optional.empty(),
+            Optional.empty(),Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty());
+    }
 
     /**
      * Получение ассоциированных объектов.
@@ -87,6 +183,22 @@ public interface Wmi {
         String assocClass,
         Consumer<WmiObj> client
     );
+
+    public default List<WmiObj> associatorsOf(
+        String objectPath,
+        String assocClass
+    ){
+        if( objectPath==null )throw new IllegalArgumentException("objectPath==null");
+        if( assocClass==null )throw new IllegalArgumentException("assocClass==null");
+        return associatorsOf(
+            objectPath,
+            Optional.of(assocClass),Optional.empty(),
+            Optional.empty(),Optional.empty(),
+            Optional.empty(),Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty());
+    }
 
     /**
      * Получение ассоциированных объектов.
@@ -102,6 +214,24 @@ public interface Wmi {
         String resultClass,
         Consumer<WmiObj> client
     );
+
+    public default List<WmiObj> associatorsOf(
+        String objectPath,
+        String assocClass,
+        String resultClass
+    ){
+        if( objectPath==null )throw new IllegalArgumentException("objectPath==null");
+        if( assocClass==null )throw new IllegalArgumentException("assocClass==null");
+        if( resultClass==null )throw new IllegalArgumentException("resultClass==null");
+        return associatorsOf(
+            objectPath,
+            Optional.of(assocClass),Optional.of(resultClass),
+            Optional.empty(),Optional.empty(),
+            Optional.empty(),Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty());
+    }
 
     /**
      * Получение ассоциированных объектов.
@@ -119,6 +249,26 @@ public interface Wmi {
         String resultRole,
         Consumer<WmiObj> client
     );
+
+    public default List<WmiObj> associatorsOf(
+        String objectPath,
+        String assocClass,
+        String resultClass,
+        String resultRole
+    ){
+        if( objectPath==null )throw new IllegalArgumentException("objectPath==null");
+        if( assocClass==null )throw new IllegalArgumentException("assocClass==null");
+        if( resultClass==null )throw new IllegalArgumentException("resultClass==null");
+        if( resultRole==null )throw new IllegalArgumentException("resultRole==null");
+        return associatorsOf(
+            objectPath,
+            Optional.of(assocClass),Optional.of(resultClass),
+            Optional.of(resultRole),Optional.empty(),
+            Optional.empty(),Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty());
+    }
 
     /**
      * Получение ассоциированных объектов.
@@ -138,6 +288,28 @@ public interface Wmi {
         String role,
         Consumer<WmiObj> client
     );
+
+    public default List<WmiObj> associatorsOf(
+        String objectPath,
+        String assocClass,
+        String resultClass,
+        String resultRole,
+        String role
+    ){
+        if( objectPath==null )throw new IllegalArgumentException("objectPath==null");
+        if( assocClass==null )throw new IllegalArgumentException("assocClass==null");
+        if( resultClass==null )throw new IllegalArgumentException("resultClass==null");
+        if( resultRole==null )throw new IllegalArgumentException("resultRole==null");
+        if( role==null )throw new IllegalArgumentException("role==null");
+        return associatorsOf(
+            objectPath,
+            Optional.of(assocClass),Optional.of(resultClass),
+            Optional.of(resultRole),Optional.of(role),
+            Optional.empty(),Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty());
+    }
 
     /**
      * Получение ассоциированных объектов.
@@ -159,6 +331,29 @@ public interface Wmi {
         boolean classesOnly,
         Consumer<WmiObj> client
     );
+
+    public default List<WmiObj> associatorsOf(
+        String objectPath,
+        String assocClass,
+        String resultClass,
+        String resultRole,
+        String role,
+        boolean classesOnly
+    ){
+        if( objectPath==null )throw new IllegalArgumentException("objectPath==null");
+        if( assocClass==null )throw new IllegalArgumentException("assocClass==null");
+        if( resultClass==null )throw new IllegalArgumentException("resultClass==null");
+        if( resultRole==null )throw new IllegalArgumentException("resultRole==null");
+        if( role==null )throw new IllegalArgumentException("role==null");
+        return associatorsOf(
+            objectPath,
+            Optional.of(assocClass),Optional.of(resultClass),
+            Optional.of(resultRole),Optional.of(role),
+            Optional.of(classesOnly),Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty());
+    }
 
     /**
      * Получение ассоциированных объектов.
@@ -182,6 +377,30 @@ public interface Wmi {
         boolean schemaOnly,
         Consumer<WmiObj> client
     );
+
+    public default List<WmiObj> associatorsOf(
+        String objectPath,
+        String assocClass,
+        String resultClass,
+        String resultRole,
+        String role,
+        boolean classesOnly,
+        boolean schemaOnly
+    ){
+        if( objectPath==null )throw new IllegalArgumentException("objectPath==null");
+        if( assocClass==null )throw new IllegalArgumentException("assocClass==null");
+        if( resultClass==null )throw new IllegalArgumentException("resultClass==null");
+        if( resultRole==null )throw new IllegalArgumentException("resultRole==null");
+        if( role==null )throw new IllegalArgumentException("role==null");
+        return associatorsOf(
+            objectPath,
+            Optional.of(assocClass),Optional.of(resultClass),
+            Optional.of(resultRole),Optional.of(role),
+            Optional.of(classesOnly),Optional.of(schemaOnly),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty());
+    }
 
     /**
      * Получение ассоциированных объектов.
@@ -207,6 +426,32 @@ public interface Wmi {
         String requiredAssocQualifier,
         Consumer<WmiObj> client
     );
+
+    public default List<WmiObj> associatorsOf(
+        String objectPath,
+        String assocClass,
+        String resultClass,
+        String resultRole,
+        String role,
+        boolean classesOnly,
+        boolean schemaOnly,
+        String requiredAssocQualifier
+    ){
+        if( objectPath==null )throw new IllegalArgumentException("objectPath==null");
+        if( assocClass==null )throw new IllegalArgumentException("assocClass==null");
+        if( resultClass==null )throw new IllegalArgumentException("resultClass==null");
+        if( resultRole==null )throw new IllegalArgumentException("resultRole==null");
+        if( role==null )throw new IllegalArgumentException("role==null");
+        if( requiredAssocQualifier==null )throw new IllegalArgumentException("requiredAssocQualifier==null");
+        return associatorsOf(
+            objectPath,
+            Optional.of(assocClass),Optional.of(resultClass),
+            Optional.of(resultRole),Optional.of(role),
+            Optional.of(classesOnly),Optional.of(schemaOnly),
+            Optional.of(requiredAssocQualifier),
+            Optional.empty(),
+            Optional.empty());
+    }
 
     /**
      * Получение ассоциированных объектов.
@@ -234,6 +479,34 @@ public interface Wmi {
         String requiredQualifier,
         Consumer<WmiObj> client
     );
+
+    public default List<WmiObj> associatorsOf(
+        String objectPath,
+        String assocClass,
+        String resultClass,
+        String resultRole,
+        String role,
+        boolean classesOnly,
+        boolean schemaOnly,
+        String requiredAssocQualifier,
+        String requiredQualifier
+    ){
+        if( objectPath==null )throw new IllegalArgumentException("objectPath==null");
+        if( assocClass==null )throw new IllegalArgumentException("assocClass==null");
+        if( resultClass==null )throw new IllegalArgumentException("resultClass==null");
+        if( resultRole==null )throw new IllegalArgumentException("resultRole==null");
+        if( role==null )throw new IllegalArgumentException("role==null");
+        if( requiredAssocQualifier==null )throw new IllegalArgumentException("requiredAssocQualifier==null");
+        if( requiredQualifier==null )throw new IllegalArgumentException("requiredQualifier==null");
+        return associatorsOf(
+            objectPath,
+            Optional.of(assocClass),Optional.of(resultClass),
+            Optional.of(resultRole),Optional.of(role),
+            Optional.of(classesOnly),Optional.of(schemaOnly),
+            Optional.of(requiredAssocQualifier),
+            Optional.of(requiredQualifier),
+            Optional.empty());
+    }
 
     /**
      * Получение ассоциированных объектов.
@@ -263,6 +536,35 @@ public interface Wmi {
         int flags,
         Consumer<WmiObj> client
     );
+
+    public default List<WmiObj> associatorsOf(
+        String objectPath,
+        String assocClass,
+        String resultClass,
+        String resultRole,
+        String role,
+        boolean classesOnly,
+        boolean schemaOnly,
+        String requiredAssocQualifier,
+        String requiredQualifier,
+        int flags
+    ){
+        if( objectPath==null )throw new IllegalArgumentException("objectPath==null");
+        if( assocClass==null )throw new IllegalArgumentException("assocClass==null");
+        if( resultClass==null )throw new IllegalArgumentException("resultClass==null");
+        if( resultRole==null )throw new IllegalArgumentException("resultRole==null");
+        if( role==null )throw new IllegalArgumentException("role==null");
+        if( requiredAssocQualifier==null )throw new IllegalArgumentException("requiredAssocQualifier==null");
+        if( requiredQualifier==null )throw new IllegalArgumentException("requiredQualifier==null");
+        return associatorsOf(
+            objectPath,
+            Optional.of(assocClass),Optional.of(resultClass),
+            Optional.of(resultRole),Optional.of(role),
+            Optional.of(classesOnly),Optional.of(schemaOnly),
+            Optional.of(requiredAssocQualifier),
+            Optional.of(requiredQualifier),
+            Optional.of(flags));
+    }
 
     /**
      * <a href="https://docs.microsoft.com/en-us/windows/win32/wmisdk/swbemservices-associatorsof">
@@ -427,4 +729,136 @@ public interface Wmi {
         Optional<Integer> flags,
         Consumer<WmiObj> client
     );
+
+    @SuppressWarnings({"OptionalUsedAsFieldOrParameterType", "OptionalAssignedToNull"})
+    public default List<WmiObj> associatorsOf(String objectPath,
+                                              Optional<String> assocClass,
+                                              Optional<String> resultClass,
+                                              Optional<String> resultRole,
+                                              Optional<String> role,
+                                              Optional<Boolean> classesOnly,
+                                              Optional<Boolean> schemaOnly,
+                                              Optional<String> requiredAssocQualifier,
+                                              Optional<String> requiredQualifier,
+                                              Optional<Integer> flags){
+        if( objectPath==null )throw new IllegalArgumentException("objectPath==null");
+        if( assocClass==null )throw new IllegalArgumentException("assocClass==null");
+        if( resultClass==null )throw new IllegalArgumentException("resultClass==null");
+        if( resultRole==null )throw new IllegalArgumentException("resultRole==null");
+        if( role==null )throw new IllegalArgumentException("role==null");
+        if( classesOnly==null )throw new IllegalArgumentException("classesOnly==null");
+        if( schemaOnly==null )throw new IllegalArgumentException("schemaOnly==null");
+        if( requiredAssocQualifier==null )throw new IllegalArgumentException("requiredAssocQualifier==null");
+        if( requiredQualifier==null )throw new IllegalArgumentException("requiredQualifier==null");
+        if( flags==null )throw new IllegalArgumentException("flags==null");
+        ArrayList<WmiObj> list = new ArrayList<>();
+        associatorsOf(
+            objectPath,
+            assocClass,
+            resultClass,resultRole,role,
+            classesOnly,schemaOnly,requiredAssocQualifier,requiredQualifier,
+            flags,
+            list::add);
+        return list;
+    }
+    //endregion
+
+    //region instancesOf()
+    /**
+     * возвращает экземпляры указанного класса в соответствии с заданными пользователем критериями выбора
+     * @param clazz Строка, содержащая имя класса, для которого требуются экземпляры
+     * @param client клиент
+     * @see #instancesOf(String, Optional, Consumer)
+     */
+    public void instancesOf( String clazz, Consumer<WmiObj> client );
+
+    /**
+     * возвращает экземпляры указанного класса в соответствии с заданными пользователем критериями выбора
+     * @param clazz Строка, содержащая имя класса, для которого требуются экземпляры
+     * @param flags флаги
+     * @param client клиент
+     * @see #instancesOf(String, Optional, Consumer)
+     */
+    public void instancesOf( String clazz, int flags, Consumer<WmiObj> client );
+
+    /**
+     * The InstancesOf method of the SWbemServices object creates an enumerator
+     * that returns the instances of a specified class according to the user-specified selection criteria.
+     *
+     * <p>Метод InstancesOf объекта SWbemServices создает перечислитель.
+     * который возвращает экземпляры указанного класса в соответствии с заданными пользователем критериями выбора.
+     *
+     * <br>This method implements a simple query. More complex queries may require the use of SWbemServices.ExecQuery.
+     * <br>Этот метод реализует простой запрос. Более сложные запросы могут потребовать использования SWbemServices.ExecQuery.
+     *
+     * <p>Error codes
+     *
+     * <br>Upon the completion of the InstancesOf method, the Err object may contain one of the error codes in the following list.
+     *
+     * <br>Note
+     *
+     * <br>A returned enumerator with zero elements is not an error.
+     *
+     * <ul>
+     * <li>wbemErrAccessDenied - 2147749891 (0x80041003)
+     *     <br>Current user does not have the permission to view instances of the specified class.
+     *
+     * <li>wbemErrFailed - 2147749889 (0x80041001)
+     *     <br>Unspecified error occurred.
+     *
+     * <li>wbemErrInvalidClass - 2147749904 (0x80041010)
+     *     <br>Specified class is not valid.
+     *
+     * <li>wbemErrInvalidParameter - 2147749896 (0x80041008)
+     *     <br>A specified parameter is not valid.
+     *
+     * <li>wbemErrOutOfMemory - 2147749894 (0x80041006)
+     *     <br>Not enough memory to complete the operation.
+     * </ul>
+     *
+     * @param clazz
+     *      Required. String that contains the name of the class for which instances are desired. This parameter cannot be blank.
+     *      <br>Необходимые. Строка, содержащая имя класса, для которого требуются экземпляры. Этот параметр не может быть пустым.
+     * @param flags
+     *      This parameter determines how detailed the call enumerates and if this call returns immediately. The default value for this parameter is wbemFlagReturnImmediately. This parameter can accept the following values.
+     *
+     *      <ul>
+     *      <li>wbemFlagForwardOnly (32 (0x20))
+     *        <br>Causes a forward-only enumerator to be returned. Forward-only enumerators are generally much faster and use less memory than conventional enumerators, but they do not allow calls to SWbemObject.Clone_.
+     *        <br>Вызывает возвращение перечислителя только для пересылки. Перечислители, работающие только в прямом направлении, обычно намного быстрее и используют меньше памяти, чем обычные перечислители, но они не позволяют вызывать SWbemObject.Clone_.
+     *
+     *      <li>wbemFlagBidirectional (0 (0x0))
+     *        <br>Causes WMI to retain pointers to objects of the enumeration until the client releases the enumerator.
+     *        <br>Заставляет WMI сохранять указатели на объекты перечисления до тех пор, пока клиент не освободит перечислитель.
+     *
+     *      <li>wbemFlagReturnImmediately (16 (0x10))
+     *        <br>Default value for this parameter. This flag causes the call to return immediately.
+     *        <br>Значение по умолчанию для этого параметра. Этот флаг вызывает немедленный возврат вызова.
+     *
+     *      <li>wbemFlagReturnWhenComplete (0 (0x0))
+     *        <br>Causes this call to block until the query has completed. This flag calls the method in the synchronous mode.
+     *        <br>Вызывает блокировку этого вызова до завершения запроса. Этот флаг вызывает метод в синхронном режиме.
+     *
+     *      <li>wbemQueryFlagShallow (1 (0x1))
+     *        <br>Forces the enumeration to include only immediate subclasses of the specified parent class.
+     *        <br>Заставляет перечисление включать только непосредственные подклассы указанного родительского класса.
+     *
+     *      <li>wbemQueryFlagDeep (0 (0x0))
+     *        <br>Default value for this parameter. This value forces the enumeration to include all classes in the hierarchy.
+     *        <br>Значение по умолчанию для этого параметра. Это значение заставляет перечисление включать все классы в иерархии.
+     *
+     *      <li>wbemFlagUseAmendedQualifiers (131072 (0x20000))
+     *        <br>Causes WMI to return class amendment data with the base class definition. For more information
+     *        <br>Заставляет WMI возвращать данные об изменении класса с определением базового класса. Для дополнительной информации
+     *      </ul>
+     * @param client
+     *      Клиентский код
+     */
+    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+    public void instancesOf(
+        String clazz,
+        Optional<Integer> flags,
+        Consumer<WmiObj> client
+    );
+    //endregion
 }
