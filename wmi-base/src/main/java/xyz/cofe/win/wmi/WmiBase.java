@@ -132,8 +132,12 @@ public class WmiBase implements Wmi {
             vRes = ax.invoke("SubclassesOf");
         }
 
-        Dispatch dRes = vRes!=null && !vRes.isNull() ?
-            vRes.toDispatch() : null;
+        each(vRes, consumer);
+    }
+
+    private void each(Variant wmiCollection, Consumer<WmiObj> consumer) {
+        Dispatch dRes = wmiCollection !=null && !wmiCollection.isNull() ?
+            wmiCollection.toDispatch() : null;
         EnumVariant enRes = dRes!=null && dRes.m_pDispatch!=0 ?
             new EnumVariant(dRes) : null;
         while( enRes!=null && enRes.hasMoreElements() ){
@@ -148,5 +152,344 @@ public class WmiBase implements Wmi {
                 consumer.accept(wObj);
             }
         }
+    }
+
+    public void associatorsOf(
+        String objectPath,
+        Consumer<WmiObj> client
+    ){
+        if( objectPath==null )throw new IllegalArgumentException("objectPath==null");
+        if( client==null )throw new IllegalArgumentException("client==null");
+        associatorsOf(
+            objectPath
+            , Optional.empty()
+            , Optional.empty()
+            , Optional.empty()
+            , Optional.empty()
+            , Optional.empty()
+            , Optional.empty()
+            , Optional.empty()
+            , Optional.empty()
+            , Optional.empty()
+            , client
+        );
+    }
+
+    public void associatorsOf(
+        String objectPath,
+        String assocClass,
+        Consumer<WmiObj> client
+    ){
+        if( objectPath==null )throw new IllegalArgumentException("objectPath==null");
+        if( assocClass==null )throw new IllegalArgumentException("assocClass==null");
+        if( client==null )throw new IllegalArgumentException("client==null");
+        associatorsOf(
+            objectPath
+            , Optional.of(assocClass)
+            , Optional.empty()
+            , Optional.empty()
+            , Optional.empty()
+            , Optional.empty()
+            , Optional.empty()
+            , Optional.empty()
+            , Optional.empty()
+            , Optional.empty()
+            , client
+        );
+    }
+
+    public void associatorsOf(
+        String objectPath,
+        String assocClass,
+        String resultClass,
+        Consumer<WmiObj> client
+    ){
+        if( objectPath==null )throw new IllegalArgumentException("objectPath==null");
+        if( assocClass==null )throw new IllegalArgumentException("assocClass==null");
+        if( resultClass==null )throw new IllegalArgumentException("resultClass==null");
+        if( client==null )throw new IllegalArgumentException("client==null");
+        associatorsOf(
+            objectPath
+            , Optional.of(assocClass)
+            , Optional.of(resultClass)
+            , Optional.empty()
+            , Optional.empty()
+            , Optional.empty()
+            , Optional.empty()
+            , Optional.empty()
+            , Optional.empty()
+            , Optional.empty()
+            , client
+        );
+    }
+
+    public void associatorsOf(
+        String objectPath,
+        String assocClass,
+        String resultClass,
+        String resultRole,
+        Consumer<WmiObj> client
+    ){
+        if( objectPath==null )throw new IllegalArgumentException("objectPath==null");
+        if( assocClass==null )throw new IllegalArgumentException("assocClass==null");
+        if( resultClass==null )throw new IllegalArgumentException("resultClass==null");
+        if( resultRole==null )throw new IllegalArgumentException("resultRole==null");
+        if( client==null )throw new IllegalArgumentException("client==null");
+        associatorsOf(
+            objectPath
+            , Optional.of(assocClass)
+            , Optional.of(resultClass)
+            , Optional.of(resultRole)
+            , Optional.empty()
+            , Optional.empty()
+            , Optional.empty()
+            , Optional.empty()
+            , Optional.empty()
+            , Optional.empty()
+            , client
+        );
+    }
+
+    public void associatorsOf(
+        String objectPath,
+        String assocClass,
+        String resultClass,
+        String resultRole,
+        String role,
+        Consumer<WmiObj> client
+    ){
+        if( objectPath==null )throw new IllegalArgumentException("objectPath==null");
+        if( assocClass==null )throw new IllegalArgumentException("assocClass==null");
+        if( resultClass==null )throw new IllegalArgumentException("resultClass==null");
+        if( resultRole==null )throw new IllegalArgumentException("resultRole==null");
+        if( role==null )throw new IllegalArgumentException("role==null");
+        if( client==null )throw new IllegalArgumentException("client==null");
+        associatorsOf(
+            objectPath
+            , Optional.of(assocClass)
+            , Optional.of(resultClass)
+            , Optional.of(resultRole)
+            , Optional.of(role)
+            , Optional.empty()
+            , Optional.empty()
+            , Optional.empty()
+            , Optional.empty()
+            , Optional.empty()
+            , client
+        );
+    }
+
+    public void associatorsOf(
+        String objectPath,
+        String assocClass,
+        String resultClass,
+        String resultRole,
+        String role,
+        boolean classesOnly,
+        Consumer<WmiObj> client
+    ){
+        if( objectPath==null )throw new IllegalArgumentException("objectPath==null");
+        if( assocClass==null )throw new IllegalArgumentException("assocClass==null");
+        if( resultClass==null )throw new IllegalArgumentException("resultClass==null");
+        if( resultRole==null )throw new IllegalArgumentException("resultRole==null");
+        if( role==null )throw new IllegalArgumentException("role==null");
+        if( client==null )throw new IllegalArgumentException("client==null");
+        associatorsOf(
+            objectPath
+            , Optional.of(assocClass)
+            , Optional.of(resultClass)
+            , Optional.of(resultRole)
+            , Optional.of(role)
+            , Optional.of(classesOnly)
+            , Optional.empty()
+            , Optional.empty()
+            , Optional.empty()
+            , Optional.empty()
+            , client
+        );
+    }
+
+    public void associatorsOf(
+        String objectPath,
+        String assocClass,
+        String resultClass,
+        String resultRole,
+        String role,
+        boolean classesOnly,
+        boolean schemaOnly,
+        Consumer<WmiObj> client
+    ){
+        if( objectPath==null )throw new IllegalArgumentException("objectPath==null");
+        if( assocClass==null )throw new IllegalArgumentException("assocClass==null");
+        if( resultClass==null )throw new IllegalArgumentException("resultClass==null");
+        if( resultRole==null )throw new IllegalArgumentException("resultRole==null");
+        if( role==null )throw new IllegalArgumentException("role==null");
+        if( client==null )throw new IllegalArgumentException("client==null");
+        associatorsOf(
+            objectPath
+            , Optional.of(assocClass)
+            , Optional.of(resultClass)
+            , Optional.of(resultRole)
+            , Optional.of(role)
+            , Optional.of(classesOnly)
+            , Optional.of(schemaOnly)
+            , Optional.empty()
+            , Optional.empty()
+            , Optional.empty()
+            , client
+        );
+    }
+
+    public void associatorsOf(
+        String objectPath,
+        String assocClass,
+        String resultClass,
+        String resultRole,
+        String role,
+        boolean classesOnly,
+        boolean schemaOnly,
+        String requiredAssocQualifier,
+        Consumer<WmiObj> client
+    ){
+        if( objectPath==null )throw new IllegalArgumentException("objectPath==null");
+        if( assocClass==null )throw new IllegalArgumentException("assocClass==null");
+        if( resultClass==null )throw new IllegalArgumentException("resultClass==null");
+        if( resultRole==null )throw new IllegalArgumentException("resultRole==null");
+        if( role==null )throw new IllegalArgumentException("role==null");
+        if( requiredAssocQualifier==null )throw new IllegalArgumentException("requiredAssocQualifier==null");
+        if( client==null )throw new IllegalArgumentException("client==null");
+        associatorsOf(
+            objectPath
+            , Optional.of(assocClass)
+            , Optional.of(resultClass)
+            , Optional.of(resultRole)
+            , Optional.of(role)
+            , Optional.of(classesOnly)
+            , Optional.of(schemaOnly)
+            , Optional.of(requiredAssocQualifier)
+            , Optional.empty()
+            , Optional.empty(),
+            client
+        );
+    }
+
+    public void associatorsOf(
+        String objectPath,
+        String assocClass,
+        String resultClass,
+        String resultRole,
+        String role,
+        boolean classesOnly,
+        boolean schemaOnly,
+        String requiredAssocQualifier,
+        String requiredQualifier,
+        Consumer<WmiObj> client
+    ){
+        if( objectPath==null )throw new IllegalArgumentException("objectPath==null");
+        if( assocClass==null )throw new IllegalArgumentException("assocClass==null");
+        if( resultClass==null )throw new IllegalArgumentException("resultClass==null");
+        if( resultRole==null )throw new IllegalArgumentException("resultRole==null");
+        if( role==null )throw new IllegalArgumentException("role==null");
+        if( requiredAssocQualifier==null )throw new IllegalArgumentException("requiredAssocQualifier==null");
+        if( requiredQualifier==null )throw new IllegalArgumentException("requiredQualifier==null");
+        if( client==null )throw new IllegalArgumentException("client==null");
+        associatorsOf(
+            objectPath
+            , Optional.of(assocClass)
+            , Optional.of(resultClass)
+            , Optional.of(resultRole)
+            , Optional.of(role)
+            , Optional.of(classesOnly)
+            , Optional.of(schemaOnly)
+            , Optional.of(requiredAssocQualifier)
+            , Optional.of(requiredQualifier)
+            , Optional.empty(),
+            client
+        );
+    }
+
+    public void associatorsOf(
+        String objectPath,
+        String assocClass,
+        String resultClass,
+        String resultRole,
+        String role,
+        boolean classesOnly,
+        boolean schemaOnly,
+        String requiredAssocQualifier,
+        String requiredQualifier,
+        int flags,
+        Consumer<WmiObj> client
+    ){
+        if( objectPath==null )throw new IllegalArgumentException("objectPath==null");
+        if( assocClass==null )throw new IllegalArgumentException("assocClass==null");
+        if( resultClass==null )throw new IllegalArgumentException("resultClass==null");
+        if( resultRole==null )throw new IllegalArgumentException("resultRole==null");
+        if( role==null )throw new IllegalArgumentException("role==null");
+        if( requiredAssocQualifier==null )throw new IllegalArgumentException("requiredAssocQualifier==null");
+        if( requiredQualifier==null )throw new IllegalArgumentException("requiredQualifier==null");
+        if( client==null )throw new IllegalArgumentException("client==null");
+        associatorsOf(
+            objectPath
+            , Optional.of(assocClass)
+            , Optional.of(resultClass)
+            , Optional.of(resultRole)
+            , Optional.of(role)
+            , Optional.of(classesOnly)
+            , Optional.of(schemaOnly)
+            , Optional.of(requiredAssocQualifier)
+            , Optional.of(requiredQualifier)
+            , Optional.of(flags),
+            client
+        );
+    }
+
+    public void associatorsOf(
+        String objectPath,
+        Optional<String> assocClass,
+        Optional<String> resultClass,
+        Optional<String> resultRole,
+        Optional<String> role,
+        Optional<Boolean> classesOnly,
+        Optional<Boolean> schemaOnly,
+        Optional<String> requiredAssocQualifier,
+        Optional<String> requiredQualifier,
+        Optional<Integer> flags,
+        Consumer<WmiObj> client
+    ){
+        if( objectPath==null )throw new IllegalArgumentException("objectPath==null");
+        if( assocClass==null )throw new IllegalArgumentException("assocClass==null");
+        if( resultClass==null )throw new IllegalArgumentException("resultClass==null");
+        if( resultRole==null )throw new IllegalArgumentException("resultRole==null");
+        if( role==null )throw new IllegalArgumentException("role==null");
+        if( classesOnly==null )throw new IllegalArgumentException("classesOnly==null");
+        if( schemaOnly==null )throw new IllegalArgumentException("schemaOnly==null");
+        if( requiredAssocQualifier==null )throw new IllegalArgumentException("requiredAssocQualifier==null");
+        if( requiredQualifier==null )throw new IllegalArgumentException("requiredQualifier==null");
+        if( flags==null )throw new IllegalArgumentException("flags==null");
+        if( client==null )throw new IllegalArgumentException("client==null");
+
+        ActiveXComponent ax = activeXComponent;
+        if( ax==null )throw new IllegalStateException("activeXComponent is null");
+
+        Variant v = ax.invoke("AssociatorsOf",
+            new Variant(objectPath),
+            assocClass.map(Variant::new).orElse(Variant.DEFAULT),
+            resultClass.map(Variant::new).orElse(Variant.DEFAULT),
+            resultRole.map(Variant::new).orElse(Variant.DEFAULT),
+            role.map(Variant::new).orElse(Variant.DEFAULT),
+            classesOnly.map(Variant::new).orElse(Variant.DEFAULT),
+            schemaOnly.map(Variant::new).orElse(Variant.DEFAULT),
+            requiredAssocQualifier.map(Variant::new).orElse(Variant.DEFAULT),
+            requiredQualifier.map(Variant::new).orElse(Variant.DEFAULT),
+            flags.map(Variant::new).orElse(Variant.DEFAULT)
+        );
+        each(v,client);
+    }
+
+    public void instancesOf(
+        Consumer<WmiObj> client
+    ){
+
     }
 }

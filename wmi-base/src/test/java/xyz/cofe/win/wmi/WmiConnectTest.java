@@ -161,8 +161,8 @@ public class WmiConnectTest {
     }
 
     @Test
-    public void test03(){
-        System.out.println("test03");
+    public void subclassesOf_01(){
+        System.out.println("subclassesOf_01");
         System.out.println("=====================");
         WinApi.api(winApi -> {
             winApi.wmi( wmi -> {
@@ -170,6 +170,32 @@ public class WmiConnectTest {
                     System.out.println(
                         obj.getWmiPath().getClazz()+" ns="+obj.getWmiPath().getNamespace()
                     );
+                });
+            });
+        });
+    }
+
+    @Test
+    public void associatorsOf_01(){
+        System.out.println("associatorsOf_01");
+        System.out.println("=====================");
+        WinApi.api(winApi -> {
+            winApi.wmi(wmi -> {
+                AtomicInteger idx1 = new AtomicInteger(-1);
+                wmi.execQuery( "SELECT * FROM Win32_Process", obj -> {
+                    if( idx1.incrementAndGet()<(3) ){
+                        ActiveXComponent ax = obj.getActiveXComponent();
+
+                        System.out.println(
+                            "["+idx1+"]"+
+                            " pid="+ax.getProperty("ProcessId").getInt()+
+                                " Name="+ax.getProperty("Name").getString()
+                        );
+
+                        wmi.associatorsOf(obj.getWmiPath().getPath(), asoc -> {
+                            System.out.println("assoc "+asoc.getWmiPath().getPath());
+                        });
+                    }
                 });
             });
         });
