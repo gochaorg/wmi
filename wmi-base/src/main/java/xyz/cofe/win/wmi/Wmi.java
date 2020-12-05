@@ -861,4 +861,167 @@ public interface Wmi {
         Consumer<WmiObj> client
     );
     //endregion
+
+    //region referencesTo()
+    /**
+     * The ReferencesTo method of the SWbemServices object returns a collection
+     * of all association classes or instances that refer to a specific source class or instance.
+     *
+     * This method performs the same function that the REFERENCES OF WQL query performs.
+     *
+     * @param objectPath Required. String that contains the object path of the source for this method. For more information
+     * @param resultClass String that contains a class name. If specified, this parameter indicates that the returned association objects must belong to or be derived from the class that is specified in this parameter.
+     * @param role String that contains a property name. If specified, this parameter indicates that the returned association objects must be limited to those in which the source object plays a specific role. The role is defined by the name of a specified property (which must be a reference property) of an association.
+     * @param classesOnly Boolean value that indicates whether or not a list of class names should be returned rather than actual instances of the classes. These are the classes to which the association objects belong. The default value for this parameter is FALSE.
+     * @param schemaOnly Boolean value that indicates whether or not the query applies to the schema rather than the data. The default value for this parameter is FALSE. It can only be set to TRUE if the strObjectPath parameter specifies the object path of a class. When set to TRUE, the set of returned endpoints represents classes that are suitably associated with the source class in the schema.
+     * @param requiredQualifier String that contains a qualifier name. If specified, this parameter indicates that the returned association objects must include the specified qualifier.
+     * @param flags
+     *  Integer that specifies additional flags to the operation. The default for this parameter is wbemFlagReturnImmediately, which directs the call to return immediately rather than wait until the query has completed. This parameter can accept the following values.
+     *
+     *  <ul>
+     *  <li>wbemFlagForwardOnly (32 (0x20))
+     *  <br>Causes a forward-only enumerator to be returned. Forward-only enumerators are generally much faster and use less memory than conventional enumerators, but they do not allow calls to SWbemObject.Clone_.
+     *
+     *  <li>wbemFlagBidirectional (0 (0x0))
+     *  <br>Causes Windows Management Instrumentation (WMI) to retain pointers to objects of the enumeration until the client releases the enumerator.
+     *
+     *  <li>wbemFlagReturnImmediately (16 (0x10))
+     *  <br>Causes the call to return immediately.
+     *
+     *  <li>wbemFlagReturnWhenComplete (0 (0x0))
+     *  <br>Causes this call to block until the query has completed. This flag calls the method in the synchronous mode.
+     *
+     *  <li>wbemFlagUseAmendedQualifiers (131072 (0x20000))
+     *  <br>Causes WMI to return class amendment data along with the base class definition.
+     *  </ul>
+     * @param client клиент
+     */
+    @SuppressWarnings({"OptionalUsedAsFieldOrParameterType"})
+    public void referencesTo(
+        String objectPath,
+        Optional<String> resultClass,
+        Optional<String> role,
+        Optional<Boolean> classesOnly,
+        Optional<Boolean> schemaOnly,
+        Optional<String> requiredQualifier,
+        Optional<Integer> flags,
+        Consumer<WmiObj> client
+    );
+
+    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+    public List<WmiObj> referencesTo(
+        String objectPath,
+        Optional<String> resultClass,
+        Optional<String> role,
+        Optional<Boolean> classesOnly,
+        Optional<Boolean> schemaOnly,
+        Optional<String> requiredQualifier,
+        Optional<Integer> flags
+    );
+
+    public void referencesTo(
+        String objectPath,
+        String resultClass,
+        String role,
+        boolean classesOnly,
+        boolean schemaOnly,
+        String requiredQualifier,
+        int flags,
+        Consumer<WmiObj> client
+    );
+
+    public List<WmiObj> referencesTo(
+        String objectPath,
+        String resultClass,
+        String role,
+        boolean classesOnly,
+        boolean schemaOnly,
+        String requiredQualifier,
+        int flags
+    );
+
+    public void referencesTo(
+        String objectPath,
+        String resultClass,
+        String role,
+        boolean classesOnly,
+        boolean schemaOnly,
+        String requiredQualifier,
+        Consumer<WmiObj> client
+    );
+
+    public List<WmiObj> referencesTo(
+        String objectPath,
+        String resultClass,
+        String role,
+        boolean classesOnly,
+        boolean schemaOnly,
+        String requiredQualifier
+    );
+
+    public void referencesTo(
+        String objectPath,
+        String resultClass,
+        String role,
+        boolean classesOnly,
+        boolean schemaOnly,
+        Consumer<WmiObj> client
+    );
+
+    public List<WmiObj> referencesTo(
+        String objectPath,
+        String resultClass,
+        String role,
+        boolean classesOnly,
+        boolean schemaOnly
+    );
+
+    public void referencesTo(
+        String objectPath,
+        String resultClass,
+        String role,
+        boolean classesOnly,
+        Consumer<WmiObj> client
+    );
+
+    public List<WmiObj> referencesTo(
+        String objectPath,
+        String resultClass,
+        String role,
+        boolean classesOnly
+    );
+
+    public void referencesTo(
+        String objectPath,
+        String resultClass,
+        String role,
+        Consumer<WmiObj> client
+    );
+
+    public List<WmiObj> referencesTo(
+        String objectPath,
+        String resultClass,
+        String role
+    );
+
+    public void referencesTo(
+        String objectPath,
+        String resultClass,
+        Consumer<WmiObj> client
+    );
+
+    public List<WmiObj> referencesTo(
+        String objectPath,
+        String resultClass
+    );
+
+    public void referencesTo(
+        String objectPath,
+        Consumer<WmiObj> client
+    );
+
+    public List<WmiObj> referencesTo(
+        String objectPath
+    );
+    //endregion
 }

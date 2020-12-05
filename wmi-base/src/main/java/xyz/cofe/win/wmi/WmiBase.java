@@ -18,6 +18,7 @@ public class WmiBase implements Wmi {
         this.activeXComponent = activeXComponent;
     }
 
+    //region execQuery()
     @Override
     public void execQuery(String query, Consumer<WmiObj> wmiObjectConsumer) {
         if( query==null )throw new IllegalArgumentException("query==null");
@@ -63,6 +64,7 @@ public class WmiBase implements Wmi {
         );
         each(rset,wmiObjectConsumer);
     }
+    //endregion
 
     @Override
     public WmiObj getObject(String path) {
@@ -515,6 +517,7 @@ public class WmiBase implements Wmi {
     }
     //endregion
 
+    //region instanceOf()
     /**
      * возвращает экземпляры указанного класса в соответствии с заданными пользователем критериями выбора
      * @param clazz Строка, содержащая имя класса, для которого требуются экземпляры
@@ -611,7 +614,7 @@ public class WmiBase implements Wmi {
      * @param client
      *      Клиентский код
      */
-    @SuppressWarnings({"OptionalUsedAsFieldOrParameterType", "OptionalAssignedToNull"})
+    @SuppressWarnings({"OptionalAssignedToNull"})
     public void instancesOf(
         String clazz,
         Optional<Integer> flags,
@@ -630,4 +633,416 @@ public class WmiBase implements Wmi {
         );
         each(v,client);
     }
+    //endregion
+
+    //region referencesTo()
+    /**
+     * The ReferencesTo method of the SWbemServices object returns a collection
+     * of all association classes or instances that refer to a specific source class or instance.
+     *
+     * This method performs the same function that the REFERENCES OF WQL query performs.
+     *
+     * @param objectPath Required. String that contains the object path of the source for this method. For more information
+     * @param resultClass String that contains a class name. If specified, this parameter indicates that the returned association objects must belong to or be derived from the class that is specified in this parameter.
+     * @param role String that contains a property name. If specified, this parameter indicates that the returned association objects must be limited to those in which the source object plays a specific role. The role is defined by the name of a specified property (which must be a reference property) of an association.
+     * @param classesOnly Boolean value that indicates whether or not a list of class names should be returned rather than actual instances of the classes. These are the classes to which the association objects belong. The default value for this parameter is FALSE.
+     * @param schemaOnly Boolean value that indicates whether or not the query applies to the schema rather than the data. The default value for this parameter is FALSE. It can only be set to TRUE if the strObjectPath parameter specifies the object path of a class. When set to TRUE, the set of returned endpoints represents classes that are suitably associated with the source class in the schema.
+     * @param requiredQualifier String that contains a qualifier name. If specified, this parameter indicates that the returned association objects must include the specified qualifier.
+     * @param flags
+     *  Integer that specifies additional flags to the operation. The default for this parameter is wbemFlagReturnImmediately, which directs the call to return immediately rather than wait until the query has completed. This parameter can accept the following values.
+     *
+     *  <ul>
+     *  <li>wbemFlagForwardOnly (32 (0x20))
+     *  <br>Causes a forward-only enumerator to be returned. Forward-only enumerators are generally much faster and use less memory than conventional enumerators, but they do not allow calls to SWbemObject.Clone_.
+     *
+     *  <li>wbemFlagBidirectional (0 (0x0))
+     *  <br>Causes Windows Management Instrumentation (WMI) to retain pointers to objects of the enumeration until the client releases the enumerator.
+     *
+     *  <li>wbemFlagReturnImmediately (16 (0x10))
+     *  <br>Causes the call to return immediately.
+     *
+     *  <li>wbemFlagReturnWhenComplete (0 (0x0))
+     *  <br>Causes this call to block until the query has completed. This flag calls the method in the synchronous mode.
+     *
+     *  <li>wbemFlagUseAmendedQualifiers (131072 (0x20000))
+     *  <br>Causes WMI to return class amendment data along with the base class definition.
+     *  </ul>
+     * @param client клиент
+     */
+    @SuppressWarnings({"OptionalAssignedToNull"})
+    public void referencesTo(
+        String objectPath,
+        Optional<String> resultClass,
+        Optional<String> role,
+        Optional<Boolean> classesOnly,
+        Optional<Boolean> schemaOnly,
+        Optional<String> requiredQualifier,
+        Optional<Integer> flags,
+        Consumer<WmiObj> client
+    ){
+        if( objectPath==null )throw new IllegalArgumentException("objectPath==null");
+        if( resultClass==null )throw new IllegalArgumentException("resultClass==null");
+        if( role==null )throw new IllegalArgumentException("role==null");
+        if( classesOnly==null )throw new IllegalArgumentException("classesOnly==null");
+        if( schemaOnly==null )throw new IllegalArgumentException("schemaOnly==null");
+        if( requiredQualifier==null )throw new IllegalArgumentException("requiredQualifier==null");
+        if( flags==null )throw new IllegalArgumentException("flags==null");
+        if( client==null )throw new IllegalArgumentException("client==null");
+
+        ActiveXComponent ax = activeXComponent;
+        if( ax==null )throw new IllegalStateException("activeXComponent is null");
+
+        Variant v = ax.invoke("ReferencesTo",
+            new Variant(objectPath),
+            resultClass.map(Variant::new).orElse(Variant.DEFAULT),
+            role.map(Variant::new).orElse(Variant.DEFAULT),
+            classesOnly.map(Variant::new).orElse(Variant.DEFAULT),
+            schemaOnly.map(Variant::new).orElse(Variant.DEFAULT),
+            requiredQualifier.map(Variant::new).orElse(Variant.DEFAULT),
+            flags.map(Variant::new).orElse(Variant.DEFAULT)
+        );
+        each(v,client);
+    }
+
+    /**
+     * Метод ReferencesTo объекта SWbemServices возвращает коллекцию
+     * всех классов или экземпляров ассоциации, которые относятся к конкретному исходному классу или экземпляру.
+     *
+     * @param objectPath wmi путь
+     * @param resultClass
+     *      Строка, содержащая имя класса. Если указан, этот параметр указывает, что возвращаемые объекты ассоциации должны принадлежать или быть производными от класса, указанного в этом параметре.
+     * @param role
+     *      Строка, содержащая имя свойства. Если указан, этот параметр указывает, что возвращаемые объекты ассоциации должны быть ограничены теми, в которых исходный объект играет определенную роль. Роль определяется именем указанного свойства (которое должно быть ссылочным свойством) ассоциации.
+     * @param classesOnly
+     *      Логическое значение, указывающее, следует ли возвращать список имен классов, а не фактические экземпляры классов. Это классы, к которым принадлежат объекты ассоциации. Значение по умолчанию для этого параметра - ЛОЖЬ.
+     * @param schemaOnly
+     *      Логическое значение, указывающее, применяется ли запрос к схеме, а не к данным. Значение по умолчанию для этого параметра - ЛОЖЬ. Его можно установить в значение TRUE, только если параметр strObjectPath указывает путь к объекту класса. Если установлено значение TRUE, набор возвращаемых конечных точек представляет классы, которые соответствующим образом связаны с исходным классом в схеме.
+     * @param requiredQualifier
+     *      Строка, содержащая имя квалификатора. Если указан, этот параметр указывает, что возвращаемые объекты ассоциации должны включать указанный квалификатор.
+     * @param flags
+     *      Целое число, определяющее дополнительные флаги операции. Значение по умолчанию для этого параметра - wbemFlagReturnImmediately, который указывает вызову на немедленный возврат, а не на ожидание завершения запроса. Этот параметр может принимать следующие значения.
+     * @return выборка
+     */
+    @SuppressWarnings({"OptionalAssignedToNull"})
+    public List<WmiObj> referencesTo(
+        String objectPath,
+        Optional<String> resultClass,
+        Optional<String> role,
+        Optional<Boolean> classesOnly,
+        Optional<Boolean> schemaOnly,
+        Optional<String> requiredQualifier,
+        Optional<Integer> flags
+    ){
+        if( objectPath==null )throw new IllegalArgumentException("objectPath==null");
+        if( resultClass==null )throw new IllegalArgumentException("resultClass==null");
+        if( role==null )throw new IllegalArgumentException("role==null");
+        if( classesOnly==null )throw new IllegalArgumentException("classesOnly==null");
+        if( schemaOnly==null )throw new IllegalArgumentException("schemaOnly==null");
+        if( requiredQualifier==null )throw new IllegalArgumentException("requiredQualifier==null");
+        if( flags==null )throw new IllegalArgumentException("flags==null");
+
+        ArrayList<WmiObj> list = new ArrayList<>();
+        referencesTo(objectPath,resultClass,role,classesOnly,schemaOnly,requiredQualifier,flags,list::add);
+        return list;
+    }
+
+    public void referencesTo(
+        String objectPath,
+        String resultClass,
+        String role,
+        boolean classesOnly,
+        boolean schemaOnly,
+        String requiredQualifier,
+        int flags,
+        Consumer<WmiObj> client
+    ){
+        if( objectPath==null )throw new IllegalArgumentException("objectPath==null");
+        if( resultClass==null )throw new IllegalArgumentException("resultClass==null");
+        if( role==null )throw new IllegalArgumentException("role==null");
+        if( requiredQualifier==null )throw new IllegalArgumentException("requiredQualifier==null");
+        if( client==null )throw new IllegalArgumentException("client==null");
+        referencesTo(
+            objectPath,
+            Optional.of(resultClass),
+            Optional.of(role),
+            Optional.of(classesOnly),
+            Optional.of(schemaOnly),
+            Optional.of(requiredQualifier),
+            Optional.of(flags),
+            client
+        );
+    }
+
+    public List<WmiObj> referencesTo(
+        String objectPath,
+        String resultClass,
+        String role,
+        boolean classesOnly,
+        boolean schemaOnly,
+        String requiredQualifier,
+        int flags
+    ){
+        if( objectPath==null )throw new IllegalArgumentException("objectPath==null");
+        if( resultClass==null )throw new IllegalArgumentException("resultClass==null");
+        if( role==null )throw new IllegalArgumentException("role==null");
+        if( requiredQualifier==null )throw new IllegalArgumentException("requiredQualifier==null");
+        return referencesTo(
+            objectPath,
+            Optional.of(resultClass),
+            Optional.of(role),
+            Optional.of(classesOnly),
+            Optional.of(schemaOnly),
+            Optional.of(requiredQualifier),
+            Optional.of(flags)
+        );
+    }
+
+    public void referencesTo(
+        String objectPath,
+        String resultClass,
+        String role,
+        boolean classesOnly,
+        boolean schemaOnly,
+        String requiredQualifier,
+        Consumer<WmiObj> client
+    ){
+        if( objectPath==null )throw new IllegalArgumentException("objectPath==null");
+        if( resultClass==null )throw new IllegalArgumentException("resultClass==null");
+        if( role==null )throw new IllegalArgumentException("role==null");
+        if( requiredQualifier==null )throw new IllegalArgumentException("requiredQualifier==null");
+        if( client==null )throw new IllegalArgumentException("client==null");
+        referencesTo(
+            objectPath,
+            Optional.of(resultClass),
+            Optional.of(role),
+            Optional.of(classesOnly),
+            Optional.of(schemaOnly),
+            Optional.of(requiredQualifier),
+            Optional.empty(),
+            client
+        );
+    }
+
+    public List<WmiObj> referencesTo(
+        String objectPath,
+        String resultClass,
+        String role,
+        boolean classesOnly,
+        boolean schemaOnly,
+        String requiredQualifier
+    ){
+        if( objectPath==null )throw new IllegalArgumentException("objectPath==null");
+        if( resultClass==null )throw new IllegalArgumentException("resultClass==null");
+        if( role==null )throw new IllegalArgumentException("role==null");
+        if( requiredQualifier==null )throw new IllegalArgumentException("requiredQualifier==null");
+        return referencesTo(
+            objectPath,
+            Optional.of(resultClass),
+            Optional.of(role),
+            Optional.of(classesOnly),
+            Optional.of(schemaOnly),
+            Optional.of(requiredQualifier),
+            Optional.empty()
+        );
+    }
+
+    public void referencesTo(
+        String objectPath,
+        String resultClass,
+        String role,
+        boolean classesOnly,
+        boolean schemaOnly,
+        Consumer<WmiObj> client
+    ){
+        if( objectPath==null )throw new IllegalArgumentException("objectPath==null");
+        if( resultClass==null )throw new IllegalArgumentException("resultClass==null");
+        if( role==null )throw new IllegalArgumentException("role==null");
+        if( client==null )throw new IllegalArgumentException("client==null");
+        referencesTo(
+            objectPath,
+            Optional.of(resultClass),
+            Optional.of(role),
+            Optional.of(classesOnly),
+            Optional.of(schemaOnly),
+            Optional.empty(),
+            Optional.empty(),
+            client
+        );
+    }
+
+    public List<WmiObj> referencesTo(
+        String objectPath,
+        String resultClass,
+        String role,
+        boolean classesOnly,
+        boolean schemaOnly
+    ){
+        if( objectPath==null )throw new IllegalArgumentException("objectPath==null");
+        if( resultClass==null )throw new IllegalArgumentException("resultClass==null");
+        if( role==null )throw new IllegalArgumentException("role==null");
+        return referencesTo(
+            objectPath,
+            Optional.of(resultClass),
+            Optional.of(role),
+            Optional.of(classesOnly),
+            Optional.of(schemaOnly),
+            Optional.empty(),
+            Optional.empty()
+        );
+    }
+
+    public void referencesTo(
+        String objectPath,
+        String resultClass,
+        String role,
+        boolean classesOnly,
+        Consumer<WmiObj> client
+    ){
+        if( objectPath==null )throw new IllegalArgumentException("objectPath==null");
+        if( resultClass==null )throw new IllegalArgumentException("resultClass==null");
+        if( role==null )throw new IllegalArgumentException("role==null");
+        if( client==null )throw new IllegalArgumentException("client==null");
+        referencesTo(
+            objectPath,
+            Optional.of(resultClass),
+            Optional.of(role),
+            Optional.of(classesOnly),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            client
+        );
+    }
+
+    public List<WmiObj> referencesTo(
+        String objectPath,
+        String resultClass,
+        String role,
+        boolean classesOnly
+    ){
+        if( objectPath==null )throw new IllegalArgumentException("objectPath==null");
+        if( resultClass==null )throw new IllegalArgumentException("resultClass==null");
+        if( role==null )throw new IllegalArgumentException("role==null");
+        return referencesTo(
+            objectPath,
+            Optional.of(resultClass),
+            Optional.of(role),
+            Optional.of(classesOnly),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty()
+        );
+    }
+
+    public void referencesTo(
+        String objectPath,
+        String resultClass,
+        String role,
+        Consumer<WmiObj> client
+    ){
+        if( objectPath==null )throw new IllegalArgumentException("objectPath==null");
+        if( resultClass==null )throw new IllegalArgumentException("resultClass==null");
+        if( role==null )throw new IllegalArgumentException("role==null");
+        if( client==null )throw new IllegalArgumentException("client==null");
+        referencesTo(
+            objectPath,
+            Optional.of(resultClass),
+            Optional.of(role),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            client
+        );
+    }
+
+    public List<WmiObj> referencesTo(
+        String objectPath,
+        String resultClass,
+        String role
+    ){
+        if( objectPath==null )throw new IllegalArgumentException("objectPath==null");
+        if( resultClass==null )throw new IllegalArgumentException("resultClass==null");
+        if( role==null )throw new IllegalArgumentException("role==null");
+        return referencesTo(
+            objectPath,
+            Optional.of(resultClass),
+            Optional.of(role),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty()
+        );
+    }
+
+    public void referencesTo(
+        String objectPath,
+        String resultClass,
+        Consumer<WmiObj> client
+    ){
+        if( objectPath==null )throw new IllegalArgumentException("objectPath==null");
+        if( resultClass==null )throw new IllegalArgumentException("resultClass==null");
+        if( client==null )throw new IllegalArgumentException("client==null");
+        referencesTo(
+            objectPath,
+            Optional.of(resultClass),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            client
+        );
+    }
+
+    public List<WmiObj> referencesTo(
+        String objectPath,
+        String resultClass
+    ){
+        if( objectPath==null )throw new IllegalArgumentException("objectPath==null");
+        if( resultClass==null )throw new IllegalArgumentException("resultClass==null");
+        return referencesTo(
+            objectPath,
+            Optional.of(resultClass),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty()
+        );
+    }
+
+    public void referencesTo(
+        String objectPath,
+        Consumer<WmiObj> client
+    ){
+        if( objectPath==null )throw new IllegalArgumentException("objectPath==null");
+        if( client==null )throw new IllegalArgumentException("client==null");
+        referencesTo(
+            objectPath,
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            client
+        );
+    }
+
+    public List<WmiObj> referencesTo(
+        String objectPath
+    ){
+        if( objectPath==null )throw new IllegalArgumentException("objectPath==null");
+        return referencesTo(
+            objectPath,
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty()
+        );
+    }
+    //endregion
 }
