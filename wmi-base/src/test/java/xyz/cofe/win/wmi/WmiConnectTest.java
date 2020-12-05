@@ -159,4 +159,19 @@ public class WmiConnectTest {
             });
         });
     }
+
+    @Test
+    public void test03(){
+        System.out.println("test03");
+        System.out.println("=====================");
+        WinApi.api(winApi -> {
+            winApi.wmi( wmi -> {
+                wmi.subclassesOf( obj -> {
+                    System.out.println(
+                        obj.getWmiPath().getClazz()+" ns="+obj.getWmiPath().getNamespace()
+                    );
+                });
+            });
+        });
+    }
 }

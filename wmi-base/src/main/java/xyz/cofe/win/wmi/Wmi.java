@@ -1,5 +1,6 @@
 package xyz.cofe.win.wmi;
 
+import java.util.List;
 import java.util.function.Consumer;
 
 /**
@@ -19,4 +20,13 @@ public interface Wmi {
      * @return объект
      */
     WmiObj getObject(String path);
+
+    public List<WmiObj> subclassesOf();
+    public void subclassesOf(Consumer<WmiObj> consumer);
+
+    public List<WmiObj> subclassesOf(String superclass);
+    public void subclassesOf(String superclass, Consumer<WmiObj> consumer);
+
+    public List<WmiObj> subclassesOf(String superclass, int flags);
+    public void subclassesOf(String superclass, int flags, Consumer<WmiObj> consumer);
 }
