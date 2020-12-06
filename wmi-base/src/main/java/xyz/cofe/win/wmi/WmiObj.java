@@ -19,4 +19,7 @@ public interface WmiObj extends GetActiveXComponent, GetWmiQualifiers {
     }
     public default List<WmiDerivation> getWmiDerivation(){ return WmiDerivation.of(this); }
     public default SWbemQualifierSet getWmiQualifiers(){ return new SWbemQualifierSetImpl(this); }
+    public default SWbemSecurity getWmiSecurity(){
+        return SWbemSecurityImpl.fromOwner(this);
+    }
 }
