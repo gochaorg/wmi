@@ -1045,4 +1045,17 @@ public class WmiBase implements Wmi {
         );
     }
     //endregion
+
+    public void delete(
+        String objectPath
+    ){
+        if( objectPath==null )throw new IllegalArgumentException("objectPath==null");
+
+        ActiveXComponent ax = activeXComponent;
+        if( ax==null )throw new IllegalStateException("activeXComponent is null");
+
+        ax.invoke("Delete",
+            new Variant(objectPath)
+        );
+    }
 }

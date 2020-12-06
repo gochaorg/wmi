@@ -1024,4 +1024,15 @@ public interface Wmi {
         String objectPath
     );
     //endregion
+
+    //region delete()
+    /**
+     * The Delete method of the SWbemServices object deletes the class or instance that is specified in the object path. You can only delete objects in the current namespace.
+     * If a dynamic provider supplies the class or instance, you cannot delete this object unless the provider supports class or instance deletion.
+     * @param objectPath Required. String that contains the object path to the object that you want to delete
+     */
+    public void delete(
+        String objectPath
+    );
+    //endregion
 }
