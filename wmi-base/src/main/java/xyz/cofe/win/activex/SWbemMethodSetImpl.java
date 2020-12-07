@@ -12,9 +12,20 @@ import java.util.List;
 
 public class SWbemMethodSetImpl implements SWbemMethodSet {
     protected List<SWbemMethod> methods;
+    public SWbemMethodSetImpl(){
+        this.methods = new ArrayList<>();
+    }
+
+    public SWbemMethodSetImpl(SWbemMethodSetImpl sample){
+        if( sample==null )throw new IllegalArgumentException("sample==null");
+        this.methods = new ArrayList<>();
+        this.methods.addAll(sample.methods);
+    }
+
     public SWbemMethodSetImpl(Iterable<? extends SWbemMethod> methods){
         if( methods==null )throw new IllegalArgumentException("methods==null");
         this.methods = new ArrayList<>();
+        methods.forEach(this.methods::add);
     }
 
     public SWbemMethodSetImpl(ActiveXMethods ax, Wmi wmi){
@@ -53,6 +64,19 @@ public class SWbemMethodSetImpl implements SWbemMethodSet {
                 methods.add(meth);
             }
         }
+    }
+
+    @Override
+    public SWbemMethodSet clear() {
+        return new SWbemMethodSetImpl();
+    }
+
+    @Override
+    public SWbemMethodSet append(Iterable<? extends SWbemMethod> item) {
+        if( item==null )throw new IllegalArgumentException("item==null");
+        SWbemMethodSetImpl set = new SWbemMethodSetImpl(this);
+        item.forEach(i->set.methods.add(i));
+        return set;
     }
 
     @Override

@@ -15,6 +15,11 @@ public class SWbemPropertySetImpl implements SWbemPropertySet {
     public SWbemPropertySetImpl(){
         propertyList = new ArrayList<>();
     }
+    public SWbemPropertySetImpl(SWbemPropertySetImpl sample){
+        if( sample==null )throw new IllegalArgumentException("sample==null");
+        propertyList = new ArrayList<>();
+        propertyList.addAll(sample.propertyList);
+    }
 
     public SWbemPropertySetImpl(ActiveXMethods ax, Wmi wmi){
         if( ax==null )throw new IllegalArgumentException("ax==null");
@@ -73,5 +78,18 @@ public class SWbemPropertySetImpl implements SWbemPropertySet {
     @Override
     public SWbemProperty get(int idx) {
         return propertyList.get(idx);
+    }
+
+    @Override
+    public SWbemPropertySet clear() {
+        return new SWbemPropertySetImpl();
+    }
+
+    @Override
+    public SWbemPropertySet append(Iterable<? extends SWbemProperty> items) {
+        if( items==null )throw new IllegalArgumentException("items==null");
+        SWbemPropertySetImpl clone = new SWbemPropertySetImpl(this);
+        items.forEach(clone.propertyList::add);
+        return clone;
     }
 }

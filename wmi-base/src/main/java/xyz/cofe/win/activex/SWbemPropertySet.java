@@ -30,5 +30,5 @@ import java.util.Optional;
  * Объекты SWbemProperty, составляющие коллекцию SWbemPropertySet,
  * используются для описания свойств одного класса или экземпляра WMI.
  */
-public interface SWbemPropertySet extends ArrayView<SWbemProperty> {
+public interface SWbemPropertySet extends ArrayView<SWbemProperty,SWbemPropertySet> {
 }

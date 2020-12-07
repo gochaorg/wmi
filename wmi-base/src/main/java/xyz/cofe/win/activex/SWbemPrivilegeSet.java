@@ -9,5 +9,5 @@ package xyz.cofe.win.activex;
  *
  * An SWbemPrivilegeSet object is a set of privilege override requests for a specific object. When an API call is made using this object, the privilege override requests are attempted. The SWbemPrivilegeSet object does not define the privileges available to the current user or process. In other words, obtaining the privileges for any WMI object does not identify the privilege settings that are made on the connection to WMI, or the privileges in effect when an object is delivered to a sink.
  */
-public interface SWbemPrivilegeSet extends ArrayView<SWbemPrivilege> {
+public interface SWbemPrivilegeSet extends ArrayView<SWbemPrivilege,SWbemPrivilegeSet> {
 }

@@ -6,6 +6,7 @@ import xyz.cofe.win.WinApi;
 import xyz.cofe.win.activex.*;
 
 import java.util.List;
+import java.util.Optional;
 
 public class IntrospectTest {
     private static String indent(int level){
@@ -104,6 +105,7 @@ public class IntrospectTest {
     }
 
     private void inspectQualifiers(Output out, int level, SWbemQualifierSet qualifiers) {
+        boolean match = qualifiers.filter(p->p.getName().equalsIgnoreCase("Privileges")).size()>0;
         if( qualifiers.size()>0){
             out.setLinePrefix(indent(level));
             out.println("qualifiers("+qualifiers.size()+")"+(qualifiers.size()>0?":":""));
@@ -139,6 +141,45 @@ public class IntrospectTest {
             out.println("enabled: "+priv.isEnabled());
             out.println("displayName: "+priv.getDisplayName());
             out.println("identifier: "+priv.getIdentifier());
+        });
+    }
+
+    //@Test
+    public void findOptionalParams(){
+        Output out = new Output();
+        out.println("findOptionalParams()");
+        out.println("============================================");
+        WinApi.api(winApi -> {
+            winApi.wmi(wmi -> {
+                wmi.subclassesOf( sclass -> {
+                    out.println("inspect "+sclass.getWmiPath().getClazz());
+                    sclass.getWmiMethods().forEach(meth -> {
+                        Optional<SWbemProperty> optParam =
+                        meth.getInParameters().filter( param -> param.getWmiQualifiers().filter(
+                            q -> q.getName().toLowerCase().contains("option")).size()>0 ).first();
+
+                        Optional<SWbemProperty> optRes =
+                        meth.getOutParameters().filter( param -> param.getWmiQualifiers().filter(
+                            q -> q.getName().toLowerCase().contains("option")).size()>0 ).first();
+
+                        if( optParam.isPresent() || optRes.isPresent() ){
+                            out.println("has optional in method "+meth.getName());
+                            if( optParam.isPresent() ){
+                                Optional<Boolean> qopt = optParam.get().getWmiQualifiers().optional();
+                                if( !qopt.isPresent() || qopt.get()==false ){
+                                    out.println("  !! for param "+optParam.get().getName());
+                                }
+                            }
+                            if( optRes.isPresent() ){
+                                Optional<Boolean> qopt = optRes.get().getWmiQualifiers().optional();
+                                if( !qopt.isPresent() || qopt.get()==false ){
+                                    out.println("  !! for result "+optRes.get().getName());
+                                }
+                            }
+                        }
+                    });
+                });
+            });
         });
     }
 }

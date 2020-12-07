@@ -15,6 +15,11 @@ public class SWbemQualifierSetImpl implements SWbemQualifierSet {
     public SWbemQualifierSetImpl(){
     }
 
+    public SWbemQualifierSetImpl(SWbemQualifierSetImpl sample){
+        if( sample==null )throw new IllegalArgumentException("sample==null");
+        qualifierList.addAll(sample.qualifierList);
+    }
+
     public SWbemQualifierSetImpl(Iterable<? extends SWbemQualifier> qualifiers){
         if( qualifiers==null )throw new IllegalArgumentException("qualifiers==null");
         qualifiers.forEach(qualifierList::add);
@@ -51,6 +56,18 @@ public class SWbemQualifierSetImpl implements SWbemQualifierSet {
                 qualifierList.add(new SWbemQualifierImpl(axQual));
             }
         }
+    }
+
+    @Override
+    public SWbemQualifierSet clear() {
+        return new SWbemQualifierSetImpl();
+    }
+
+    @Override
+    public SWbemQualifierSet append(Iterable<? extends SWbemQualifier> item) {
+        SWbemQualifierSetImpl clone = new SWbemQualifierSetImpl(this);
+        item.forEach(i->clone.qualifierList.add(i));
+        return clone;
     }
 
     @Override

@@ -1,22 +1,26 @@
 package xyz.cofe.win.wmi;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-/**
- * Выполнение запросов к <a href="https://docs.microsoft.com/en-us/windows/win32/wmisdk/swbemservices">WMI сервису</a>
- */
-public interface Wmi {
-    //region execQuery()
+public class WmiProxy implements Wmi {
+    public final Wmi target;
+    public WmiProxy(Wmi target){
+        if( target==null )throw new IllegalArgumentException("target==null");
+        this.target = target;
+    }
+
     /**
      * Выполнение WQL запроса
      * @param query запрос
      * @param wmiObjectConsumer приемник выборки
      * @see #execQuery(String, Optional, Optional, Consumer)
      */
-    void execQuery(String query, Consumer<WmiObj> wmiObjectConsumer);
+    @Override
+    public void execQuery(String query, Consumer<WmiObj> wmiObjectConsumer) {
+        target.execQuery(query, wmiObjectConsumer);
+    }
 
     /**
      * Выполнение WQL запроса
@@ -24,11 +28,9 @@ public interface Wmi {
      * @return результат выборки
      * @see #execQuery(String, Optional, Optional, Consumer)
      */
-    public default List<WmiObj> execQuery(String query){
-        if( query==null )throw new IllegalArgumentException("query==null");
-        ArrayList<WmiObj> lst = new ArrayList<>();
-        execQuery(query,lst::add);
-        return lst;
+    @Override
+    public List<WmiObj> execQuery(String query) {
+        return target.execQuery(query);
     }
 
     /**
@@ -38,11 +40,10 @@ public interface Wmi {
      * @param wmiObjectConsumer приемник выборки
      * @see #execQuery(String, Optional, Optional, Consumer)
      */
-    public void execQuery(
-        String query,
-        int flags,
-        Consumer<WmiObj> wmiObjectConsumer
-    );
+    @Override
+    public void execQuery(String query, int flags, Consumer<WmiObj> wmiObjectConsumer) {
+        target.execQuery(query, flags, wmiObjectConsumer);
+    }
 
     /**
      * Выполнение WQL запроса
@@ -51,11 +52,9 @@ public interface Wmi {
      * @return результат выборки
      * @see #execQuery(String, Optional, Optional, Consumer)
      */
-    public default List<WmiObj> execQuery(String query, int flags){
-        if( query==null )throw new IllegalArgumentException("query==null");
-        ArrayList<WmiObj> lst = new ArrayList<>();
-        execQuery(query,flags,lst::add);
-        return lst;
+    @Override
+    public List<WmiObj> execQuery(String query, int flags) {
+        return target.execQuery(query, flags);
     }
 
     /**
@@ -85,48 +84,58 @@ public interface Wmi {
      *              </ul>
      * @param wmiObjectConsumer приемник выборки
      */
-    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-    public void execQuery(
-        String query,
-        Optional<String> queryLanguage,
-        Optional<Integer> flags,
-        Consumer<WmiObj> wmiObjectConsumer
-    );
-    //endregion
+    @Override
+    public void execQuery(String query, Optional<String> queryLanguage, Optional<Integer> flags, Consumer<WmiObj> wmiObjectConsumer) {
+        target.execQuery(query, queryLanguage, flags, wmiObjectConsumer);
+    }
 
     /**
      * Получение объекта по его WMI "пути"
      * @param path путь
      * @return объект
      */
-    WmiObj getObject(String path);
+    @Override
+    public WmiObj getObject(String path) {
+        return target.getObject(path);
+    }
 
-    //region subclassesOf()
     /**
      * <a href="https://docs.microsoft.com/en-us/windows/win32/wmisdk/swbemservices-subclassesof">Получение списка дочерних классов</a>
      * @return классы
      */
-    public List<WmiObj> subclassesOf();
+    @Override
+    public List<WmiObj> subclassesOf() {
+        return target.subclassesOf();
+    }
 
     /**
      * <a href="https://docs.microsoft.com/en-us/windows/win32/wmisdk/swbemservices-subclassesof">Получение списка дочерних классов</a>
      * @param consumer классы
      */
-    public void subclassesOf(Consumer<WmiObj> consumer);
+    @Override
+    public void subclassesOf(Consumer<WmiObj> consumer) {
+        target.subclassesOf(consumer);
+    }
 
     /**
      * <a href="https://docs.microsoft.com/en-us/windows/win32/wmisdk/swbemservices-subclassesof">Получение списка дочерних классов</a>
      * @param superclass родительский класс
      * @return дочерние классы
      */
-    public List<WmiObj> subclassesOf(String superclass);
+    @Override
+    public List<WmiObj> subclassesOf(String superclass) {
+        return target.subclassesOf(superclass);
+    }
 
     /**
      * <a href="https://docs.microsoft.com/en-us/windows/win32/wmisdk/swbemservices-subclassesof">Получение списка дочерних классов</a>
      * @param superclass родительский класс
      * @param consumer дочерние классы
      */
-    public void subclassesOf(String superclass, Consumer<WmiObj> consumer);
+    @Override
+    public void subclassesOf(String superclass, Consumer<WmiObj> consumer) {
+        target.subclassesOf(superclass, consumer);
+    }
 
     /**
      * <a href="https://docs.microsoft.com/en-us/windows/win32/wmisdk/swbemservices-subclassesof">Получение списка дочерних классов</a>
@@ -134,7 +143,10 @@ public interface Wmi {
      * @param flags дополнительные флаги
      * @return дочерние классы
      */
-    public List<WmiObj> subclassesOf(String superclass, int flags);
+    @Override
+    public List<WmiObj> subclassesOf(String superclass, int flags) {
+        return target.subclassesOf(superclass, flags);
+    }
 
     /**
      * <a href="https://docs.microsoft.com/en-us/windows/win32/wmisdk/swbemservices-subclassesof">Получение списка дочерних классов</a>
@@ -142,33 +154,25 @@ public interface Wmi {
      * @param flags дополнительные флаги
      * @param consumer дочерние классы
      */
-    public void subclassesOf(String superclass, int flags, Consumer<WmiObj> consumer);
-    //endregion
+    @Override
+    public void subclassesOf(String superclass, int flags, Consumer<WmiObj> consumer) {
+        target.subclassesOf(superclass, flags, consumer);
+    }
 
-    //region associatorsOf()
     /**
      * Получение ассоциированных объектов.
      * @param objectPath WMI путь
      * @param client Клиентский код
      * @see #associatorsOf(String, Optional, Optional, Optional, Optional, Optional, Optional, Optional, Optional, Optional, Consumer)
      */
-    public void associatorsOf(
-        String objectPath,
-        Consumer<WmiObj> client
-    );
+    @Override
+    public void associatorsOf(String objectPath, Consumer<WmiObj> client) {
+        target.associatorsOf(objectPath, client);
+    }
 
-    public default List<WmiObj> associatorsOf(
-        String objectPath
-    ){
-        if( objectPath==null )throw new IllegalArgumentException("objectPath==null");
-        return associatorsOf(
-            objectPath,
-            Optional.empty(),Optional.empty(),
-            Optional.empty(),Optional.empty(),
-            Optional.empty(),Optional.empty(),
-            Optional.empty(),
-            Optional.empty(),
-            Optional.empty());
+    @Override
+    public List<WmiObj> associatorsOf(String objectPath) {
+        return target.associatorsOf(objectPath);
     }
 
     /**
@@ -178,26 +182,14 @@ public interface Wmi {
      * @param client Клиентский код
      * @see #associatorsOf(String, Optional, Optional, Optional, Optional, Optional, Optional, Optional, Optional, Optional, Consumer)
      */
-    public void associatorsOf(
-        String objectPath,
-        String assocClass,
-        Consumer<WmiObj> client
-    );
+    @Override
+    public void associatorsOf(String objectPath, String assocClass, Consumer<WmiObj> client) {
+        target.associatorsOf(objectPath, assocClass, client);
+    }
 
-    public default List<WmiObj> associatorsOf(
-        String objectPath,
-        String assocClass
-    ){
-        if( objectPath==null )throw new IllegalArgumentException("objectPath==null");
-        if( assocClass==null )throw new IllegalArgumentException("assocClass==null");
-        return associatorsOf(
-            objectPath,
-            Optional.of(assocClass),Optional.empty(),
-            Optional.empty(),Optional.empty(),
-            Optional.empty(),Optional.empty(),
-            Optional.empty(),
-            Optional.empty(),
-            Optional.empty());
+    @Override
+    public List<WmiObj> associatorsOf(String objectPath, String assocClass) {
+        return target.associatorsOf(objectPath, assocClass);
     }
 
     /**
@@ -208,29 +200,14 @@ public interface Wmi {
      * @param client Клиентский код
      * @see #associatorsOf(String, Optional, Optional, Optional, Optional, Optional, Optional, Optional, Optional, Optional, Consumer)
      */
-    public void associatorsOf(
-        String objectPath,
-        String assocClass,
-        String resultClass,
-        Consumer<WmiObj> client
-    );
+    @Override
+    public void associatorsOf(String objectPath, String assocClass, String resultClass, Consumer<WmiObj> client) {
+        target.associatorsOf(objectPath, assocClass, resultClass, client);
+    }
 
-    public default List<WmiObj> associatorsOf(
-        String objectPath,
-        String assocClass,
-        String resultClass
-    ){
-        if( objectPath==null )throw new IllegalArgumentException("objectPath==null");
-        if( assocClass==null )throw new IllegalArgumentException("assocClass==null");
-        if( resultClass==null )throw new IllegalArgumentException("resultClass==null");
-        return associatorsOf(
-            objectPath,
-            Optional.of(assocClass),Optional.of(resultClass),
-            Optional.empty(),Optional.empty(),
-            Optional.empty(),Optional.empty(),
-            Optional.empty(),
-            Optional.empty(),
-            Optional.empty());
+    @Override
+    public List<WmiObj> associatorsOf(String objectPath, String assocClass, String resultClass) {
+        return target.associatorsOf(objectPath, assocClass, resultClass);
     }
 
     /**
@@ -242,32 +219,14 @@ public interface Wmi {
      * @param client Клиентский код
      * @see #associatorsOf(String, Optional, Optional, Optional, Optional, Optional, Optional, Optional, Optional, Optional, Consumer)
      */
-    public void associatorsOf(
-        String objectPath,
-        String assocClass,
-        String resultClass,
-        String resultRole,
-        Consumer<WmiObj> client
-    );
+    @Override
+    public void associatorsOf(String objectPath, String assocClass, String resultClass, String resultRole, Consumer<WmiObj> client) {
+        target.associatorsOf(objectPath, assocClass, resultClass, resultRole, client);
+    }
 
-    public default List<WmiObj> associatorsOf(
-        String objectPath,
-        String assocClass,
-        String resultClass,
-        String resultRole
-    ){
-        if( objectPath==null )throw new IllegalArgumentException("objectPath==null");
-        if( assocClass==null )throw new IllegalArgumentException("assocClass==null");
-        if( resultClass==null )throw new IllegalArgumentException("resultClass==null");
-        if( resultRole==null )throw new IllegalArgumentException("resultRole==null");
-        return associatorsOf(
-            objectPath,
-            Optional.of(assocClass),Optional.of(resultClass),
-            Optional.of(resultRole),Optional.empty(),
-            Optional.empty(),Optional.empty(),
-            Optional.empty(),
-            Optional.empty(),
-            Optional.empty());
+    @Override
+    public List<WmiObj> associatorsOf(String objectPath, String assocClass, String resultClass, String resultRole) {
+        return target.associatorsOf(objectPath, assocClass, resultClass, resultRole);
     }
 
     /**
@@ -280,35 +239,14 @@ public interface Wmi {
      * @param client Клиентский код
      * @see #associatorsOf(String, Optional, Optional, Optional, Optional, Optional, Optional, Optional, Optional, Optional, Consumer)
      */
-    public void associatorsOf(
-        String objectPath,
-        String assocClass,
-        String resultClass,
-        String resultRole,
-        String role,
-        Consumer<WmiObj> client
-    );
+    @Override
+    public void associatorsOf(String objectPath, String assocClass, String resultClass, String resultRole, String role, Consumer<WmiObj> client) {
+        target.associatorsOf(objectPath, assocClass, resultClass, resultRole, role, client);
+    }
 
-    public default List<WmiObj> associatorsOf(
-        String objectPath,
-        String assocClass,
-        String resultClass,
-        String resultRole,
-        String role
-    ){
-        if( objectPath==null )throw new IllegalArgumentException("objectPath==null");
-        if( assocClass==null )throw new IllegalArgumentException("assocClass==null");
-        if( resultClass==null )throw new IllegalArgumentException("resultClass==null");
-        if( resultRole==null )throw new IllegalArgumentException("resultRole==null");
-        if( role==null )throw new IllegalArgumentException("role==null");
-        return associatorsOf(
-            objectPath,
-            Optional.of(assocClass),Optional.of(resultClass),
-            Optional.of(resultRole),Optional.of(role),
-            Optional.empty(),Optional.empty(),
-            Optional.empty(),
-            Optional.empty(),
-            Optional.empty());
+    @Override
+    public List<WmiObj> associatorsOf(String objectPath, String assocClass, String resultClass, String resultRole, String role) {
+        return target.associatorsOf(objectPath, assocClass, resultClass, resultRole, role);
     }
 
     /**
@@ -322,37 +260,14 @@ public interface Wmi {
      * @param client Клиентский код
      * @see #associatorsOf(String, Optional, Optional, Optional, Optional, Optional, Optional, Optional, Optional, Optional, Consumer)
      */
-    public void associatorsOf(
-        String objectPath,
-        String assocClass,
-        String resultClass,
-        String resultRole,
-        String role,
-        boolean classesOnly,
-        Consumer<WmiObj> client
-    );
+    @Override
+    public void associatorsOf(String objectPath, String assocClass, String resultClass, String resultRole, String role, boolean classesOnly, Consumer<WmiObj> client) {
+        target.associatorsOf(objectPath, assocClass, resultClass, resultRole, role, classesOnly, client);
+    }
 
-    public default List<WmiObj> associatorsOf(
-        String objectPath,
-        String assocClass,
-        String resultClass,
-        String resultRole,
-        String role,
-        boolean classesOnly
-    ){
-        if( objectPath==null )throw new IllegalArgumentException("objectPath==null");
-        if( assocClass==null )throw new IllegalArgumentException("assocClass==null");
-        if( resultClass==null )throw new IllegalArgumentException("resultClass==null");
-        if( resultRole==null )throw new IllegalArgumentException("resultRole==null");
-        if( role==null )throw new IllegalArgumentException("role==null");
-        return associatorsOf(
-            objectPath,
-            Optional.of(assocClass),Optional.of(resultClass),
-            Optional.of(resultRole),Optional.of(role),
-            Optional.of(classesOnly),Optional.empty(),
-            Optional.empty(),
-            Optional.empty(),
-            Optional.empty());
+    @Override
+    public List<WmiObj> associatorsOf(String objectPath, String assocClass, String resultClass, String resultRole, String role, boolean classesOnly) {
+        return target.associatorsOf(objectPath, assocClass, resultClass, resultRole, role, classesOnly);
     }
 
     /**
@@ -367,39 +282,14 @@ public interface Wmi {
      * @param client Клиентский код
      * @see #associatorsOf(String, Optional, Optional, Optional, Optional, Optional, Optional, Optional, Optional, Optional, Consumer)
      */
-    public void associatorsOf(
-        String objectPath,
-        String assocClass,
-        String resultClass,
-        String resultRole,
-        String role,
-        boolean classesOnly,
-        boolean schemaOnly,
-        Consumer<WmiObj> client
-    );
+    @Override
+    public void associatorsOf(String objectPath, String assocClass, String resultClass, String resultRole, String role, boolean classesOnly, boolean schemaOnly, Consumer<WmiObj> client) {
+        target.associatorsOf(objectPath, assocClass, resultClass, resultRole, role, classesOnly, schemaOnly, client);
+    }
 
-    public default List<WmiObj> associatorsOf(
-        String objectPath,
-        String assocClass,
-        String resultClass,
-        String resultRole,
-        String role,
-        boolean classesOnly,
-        boolean schemaOnly
-    ){
-        if( objectPath==null )throw new IllegalArgumentException("objectPath==null");
-        if( assocClass==null )throw new IllegalArgumentException("assocClass==null");
-        if( resultClass==null )throw new IllegalArgumentException("resultClass==null");
-        if( resultRole==null )throw new IllegalArgumentException("resultRole==null");
-        if( role==null )throw new IllegalArgumentException("role==null");
-        return associatorsOf(
-            objectPath,
-            Optional.of(assocClass),Optional.of(resultClass),
-            Optional.of(resultRole),Optional.of(role),
-            Optional.of(classesOnly),Optional.of(schemaOnly),
-            Optional.empty(),
-            Optional.empty(),
-            Optional.empty());
+    @Override
+    public List<WmiObj> associatorsOf(String objectPath, String assocClass, String resultClass, String resultRole, String role, boolean classesOnly, boolean schemaOnly) {
+        return target.associatorsOf(objectPath, assocClass, resultClass, resultRole, role, classesOnly, schemaOnly);
     }
 
     /**
@@ -415,42 +305,14 @@ public interface Wmi {
      * @param client Клиентский код
      * @see #associatorsOf(String, Optional, Optional, Optional, Optional, Optional, Optional, Optional, Optional, Optional, Consumer)
      */
-    public void associatorsOf(
-        String objectPath,
-        String assocClass,
-        String resultClass,
-        String resultRole,
-        String role,
-        boolean classesOnly,
-        boolean schemaOnly,
-        String requiredAssocQualifier,
-        Consumer<WmiObj> client
-    );
+    @Override
+    public void associatorsOf(String objectPath, String assocClass, String resultClass, String resultRole, String role, boolean classesOnly, boolean schemaOnly, String requiredAssocQualifier, Consumer<WmiObj> client) {
+        target.associatorsOf(objectPath, assocClass, resultClass, resultRole, role, classesOnly, schemaOnly, requiredAssocQualifier, client);
+    }
 
-    public default List<WmiObj> associatorsOf(
-        String objectPath,
-        String assocClass,
-        String resultClass,
-        String resultRole,
-        String role,
-        boolean classesOnly,
-        boolean schemaOnly,
-        String requiredAssocQualifier
-    ){
-        if( objectPath==null )throw new IllegalArgumentException("objectPath==null");
-        if( assocClass==null )throw new IllegalArgumentException("assocClass==null");
-        if( resultClass==null )throw new IllegalArgumentException("resultClass==null");
-        if( resultRole==null )throw new IllegalArgumentException("resultRole==null");
-        if( role==null )throw new IllegalArgumentException("role==null");
-        if( requiredAssocQualifier==null )throw new IllegalArgumentException("requiredAssocQualifier==null");
-        return associatorsOf(
-            objectPath,
-            Optional.of(assocClass),Optional.of(resultClass),
-            Optional.of(resultRole),Optional.of(role),
-            Optional.of(classesOnly),Optional.of(schemaOnly),
-            Optional.of(requiredAssocQualifier),
-            Optional.empty(),
-            Optional.empty());
+    @Override
+    public List<WmiObj> associatorsOf(String objectPath, String assocClass, String resultClass, String resultRole, String role, boolean classesOnly, boolean schemaOnly, String requiredAssocQualifier) {
+        return target.associatorsOf(objectPath, assocClass, resultClass, resultRole, role, classesOnly, schemaOnly, requiredAssocQualifier);
     }
 
     /**
@@ -467,45 +329,14 @@ public interface Wmi {
      * @param client Клиентский код
      * @see #associatorsOf(String, Optional, Optional, Optional, Optional, Optional, Optional, Optional, Optional, Optional, Consumer)
      */
-    public void associatorsOf(
-        String objectPath,
-        String assocClass,
-        String resultClass,
-        String resultRole,
-        String role,
-        boolean classesOnly,
-        boolean schemaOnly,
-        String requiredAssocQualifier,
-        String requiredQualifier,
-        Consumer<WmiObj> client
-    );
+    @Override
+    public void associatorsOf(String objectPath, String assocClass, String resultClass, String resultRole, String role, boolean classesOnly, boolean schemaOnly, String requiredAssocQualifier, String requiredQualifier, Consumer<WmiObj> client) {
+        target.associatorsOf(objectPath, assocClass, resultClass, resultRole, role, classesOnly, schemaOnly, requiredAssocQualifier, requiredQualifier, client);
+    }
 
-    public default List<WmiObj> associatorsOf(
-        String objectPath,
-        String assocClass,
-        String resultClass,
-        String resultRole,
-        String role,
-        boolean classesOnly,
-        boolean schemaOnly,
-        String requiredAssocQualifier,
-        String requiredQualifier
-    ){
-        if( objectPath==null )throw new IllegalArgumentException("objectPath==null");
-        if( assocClass==null )throw new IllegalArgumentException("assocClass==null");
-        if( resultClass==null )throw new IllegalArgumentException("resultClass==null");
-        if( resultRole==null )throw new IllegalArgumentException("resultRole==null");
-        if( role==null )throw new IllegalArgumentException("role==null");
-        if( requiredAssocQualifier==null )throw new IllegalArgumentException("requiredAssocQualifier==null");
-        if( requiredQualifier==null )throw new IllegalArgumentException("requiredQualifier==null");
-        return associatorsOf(
-            objectPath,
-            Optional.of(assocClass),Optional.of(resultClass),
-            Optional.of(resultRole),Optional.of(role),
-            Optional.of(classesOnly),Optional.of(schemaOnly),
-            Optional.of(requiredAssocQualifier),
-            Optional.of(requiredQualifier),
-            Optional.empty());
+    @Override
+    public List<WmiObj> associatorsOf(String objectPath, String assocClass, String resultClass, String resultRole, String role, boolean classesOnly, boolean schemaOnly, String requiredAssocQualifier, String requiredQualifier) {
+        return target.associatorsOf(objectPath, assocClass, resultClass, resultRole, role, classesOnly, schemaOnly, requiredAssocQualifier, requiredQualifier);
     }
 
     /**
@@ -523,47 +354,14 @@ public interface Wmi {
      * @param client Клиентский код
      * @see #associatorsOf(String, Optional, Optional, Optional, Optional, Optional, Optional, Optional, Optional, Optional, Consumer)
      */
-    public void associatorsOf(
-        String objectPath,
-        String assocClass,
-        String resultClass,
-        String resultRole,
-        String role,
-        boolean classesOnly,
-        boolean schemaOnly,
-        String requiredAssocQualifier,
-        String requiredQualifier,
-        int flags,
-        Consumer<WmiObj> client
-    );
+    @Override
+    public void associatorsOf(String objectPath, String assocClass, String resultClass, String resultRole, String role, boolean classesOnly, boolean schemaOnly, String requiredAssocQualifier, String requiredQualifier, int flags, Consumer<WmiObj> client) {
+        target.associatorsOf(objectPath, assocClass, resultClass, resultRole, role, classesOnly, schemaOnly, requiredAssocQualifier, requiredQualifier, flags, client);
+    }
 
-    public default List<WmiObj> associatorsOf(
-        String objectPath,
-        String assocClass,
-        String resultClass,
-        String resultRole,
-        String role,
-        boolean classesOnly,
-        boolean schemaOnly,
-        String requiredAssocQualifier,
-        String requiredQualifier,
-        int flags
-    ){
-        if( objectPath==null )throw new IllegalArgumentException("objectPath==null");
-        if( assocClass==null )throw new IllegalArgumentException("assocClass==null");
-        if( resultClass==null )throw new IllegalArgumentException("resultClass==null");
-        if( resultRole==null )throw new IllegalArgumentException("resultRole==null");
-        if( role==null )throw new IllegalArgumentException("role==null");
-        if( requiredAssocQualifier==null )throw new IllegalArgumentException("requiredAssocQualifier==null");
-        if( requiredQualifier==null )throw new IllegalArgumentException("requiredQualifier==null");
-        return associatorsOf(
-            objectPath,
-            Optional.of(assocClass),Optional.of(resultClass),
-            Optional.of(resultRole),Optional.of(role),
-            Optional.of(classesOnly),Optional.of(schemaOnly),
-            Optional.of(requiredAssocQualifier),
-            Optional.of(requiredQualifier),
-            Optional.of(flags));
+    @Override
+    public List<WmiObj> associatorsOf(String objectPath, String assocClass, String resultClass, String resultRole, String role, boolean classesOnly, boolean schemaOnly, String requiredAssocQualifier, String requiredQualifier, int flags) {
+        return target.associatorsOf(objectPath, assocClass, resultClass, resultRole, role, classesOnly, schemaOnly, requiredAssocQualifier, requiredQualifier, flags);
     }
 
     /**
@@ -610,8 +408,7 @@ public interface Wmi {
      *
      *     <br>Requested item was not found.
      * </ul>
-     *
-     * @param objectPath
+     *  @param objectPath
      *      Required. String that contains the object path of the source class or instance.
      *      For more information, see Describing the Location of a WMI Object.
      *      <p>Необходимые. Строка, содержащая путь к объекту исходного класса или экземпляра.
@@ -715,69 +512,25 @@ public interface Wmi {
      *      </ul>
      * @param client Клиентский код
      */
-    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-    public void associatorsOf(
-        String objectPath,
-        Optional<String> assocClass,
-        Optional<String> resultClass,
-        Optional<String> resultRole,
-        Optional<String> role,
-        Optional<Boolean> classesOnly,
-        Optional<Boolean> schemaOnly,
-        Optional<String> requiredAssocQualifier,
-        Optional<String> requiredQualifier,
-        Optional<Integer> flags,
-        Consumer<WmiObj> client
-    );
-
-    @SuppressWarnings({"OptionalUsedAsFieldOrParameterType", "OptionalAssignedToNull"})
-    public default List<WmiObj> associatorsOf(String objectPath,
-                                              Optional<String> assocClass,
-                                              Optional<String> resultClass,
-                                              Optional<String> resultRole,
-                                              Optional<String> role,
-                                              Optional<Boolean> classesOnly,
-                                              Optional<Boolean> schemaOnly,
-                                              Optional<String> requiredAssocQualifier,
-                                              Optional<String> requiredQualifier,
-                                              Optional<Integer> flags){
-        if( objectPath==null )throw new IllegalArgumentException("objectPath==null");
-        if( assocClass==null )throw new IllegalArgumentException("assocClass==null");
-        if( resultClass==null )throw new IllegalArgumentException("resultClass==null");
-        if( resultRole==null )throw new IllegalArgumentException("resultRole==null");
-        if( role==null )throw new IllegalArgumentException("role==null");
-        if( classesOnly==null )throw new IllegalArgumentException("classesOnly==null");
-        if( schemaOnly==null )throw new IllegalArgumentException("schemaOnly==null");
-        if( requiredAssocQualifier==null )throw new IllegalArgumentException("requiredAssocQualifier==null");
-        if( requiredQualifier==null )throw new IllegalArgumentException("requiredQualifier==null");
-        if( flags==null )throw new IllegalArgumentException("flags==null");
-        ArrayList<WmiObj> list = new ArrayList<>();
-        associatorsOf(
-            objectPath,
-            assocClass,
-            resultClass,resultRole,role,
-            classesOnly,schemaOnly,requiredAssocQualifier,requiredQualifier,
-            flags,
-            list::add);
-        return list;
+    @Override
+    public void associatorsOf(String objectPath, Optional<String> assocClass, Optional<String> resultClass, Optional<String> resultRole, Optional<String> role, Optional<Boolean> classesOnly, Optional<Boolean> schemaOnly, Optional<String> requiredAssocQualifier, Optional<String> requiredQualifier, Optional<Integer> flags, Consumer<WmiObj> client) {
+        target.associatorsOf(objectPath, assocClass, resultClass, resultRole, role, classesOnly, schemaOnly, requiredAssocQualifier, requiredQualifier, flags, client);
     }
-    //endregion
 
-    //region instancesOf()
+    @Override
+    public List<WmiObj> associatorsOf(String objectPath, Optional<String> assocClass, Optional<String> resultClass, Optional<String> resultRole, Optional<String> role, Optional<Boolean> classesOnly, Optional<Boolean> schemaOnly, Optional<String> requiredAssocQualifier, Optional<String> requiredQualifier, Optional<Integer> flags) {
+        return target.associatorsOf(objectPath, assocClass, resultClass, resultRole, role, classesOnly, schemaOnly, requiredAssocQualifier, requiredQualifier, flags);
+    }
+
     /**
      * возвращает экземпляры указанного класса в соответствии с заданными пользователем критериями выбора
      * @param clazz Строка, содержащая имя класса, для которого требуются экземпляры
      * @param client клиент
      * @see #instancesOf(String, Optional, Consumer)
      */
-    public void instancesOf( String clazz, Consumer<WmiObj> client );
-
-    public default List<WmiObj> instancesOf( String clazz ){
-        if( clazz==null )throw new IllegalArgumentException("clazz==null");
-
-        ArrayList<WmiObj> list = new ArrayList<>();
-        instancesOf(clazz,list::add);
-        return list;
+    @Override
+    public void instancesOf(String clazz, Consumer<WmiObj> client) {
+        target.instancesOf(clazz, client);
     }
 
     /**
@@ -787,13 +540,9 @@ public interface Wmi {
      * @param client клиент
      * @see #instancesOf(String, Optional, Consumer)
      */
-    public void instancesOf( String clazz, int flags, Consumer<WmiObj> client );
-
-    public default List<WmiObj> instancesOf( String clazz, int flags ){
-        if( clazz==null )throw new IllegalArgumentException("clazz==null");
-        ArrayList<WmiObj> list = new ArrayList<>();
-        instancesOf(clazz,flags,list::add);
-        return list;
+    @Override
+    public void instancesOf(String clazz, int flags, Consumer<WmiObj> client) {
+        target.instancesOf(clazz, flags, client);
     }
 
     /**
@@ -830,8 +579,7 @@ public interface Wmi {
      * <li>wbemErrOutOfMemory - 2147749894 (0x80041006)
      *     <br>Not enough memory to complete the operation.
      * </ul>
-     *
-     * @param clazz
+     *  @param clazz
      *      Required. String that contains the name of the class for which instances are desired. This parameter cannot be blank.
      *      <br>Необходимые. Строка, содержащая имя класса, для которого требуются экземпляры. Этот параметр не может быть пустым.
      * @param flags
@@ -867,24 +615,18 @@ public interface Wmi {
      *        <br>Заставляет WMI возвращать данные об изменении класса с определением базового класса. Для дополнительной информации
      *      </ul>
      * @param client
-     *      Клиентский код
      */
-    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-    public void instancesOf(
-        String clazz,
-        Optional<Integer> flags,
-        Consumer<WmiObj> client
-    );
-    //endregion
+    @Override
+    public void instancesOf(String clazz, Optional<Integer> flags, Consumer<WmiObj> client) {
+        target.instancesOf(clazz, flags, client);
+    }
 
-    //region referencesTo()
     /**
      * The ReferencesTo method of the SWbemServices object returns a collection
      * of all association classes or instances that refer to a specific source class or instance.
      *
      * This method performs the same function that the REFERENCES OF WQL query performs.
-     *
-     * @param objectPath Required. String that contains the object path of the source for this method. For more information
+     *  @param objectPath Required. String that contains the object path of the source for this method. For more information
      * @param resultClass String that contains a class name. If specified, this parameter indicates that the returned association objects must belong to or be derived from the class that is specified in this parameter.
      * @param role String that contains a property name. If specified, this parameter indicates that the returned association objects must be limited to those in which the source object plays a specific role. The role is defined by the name of a specified property (which must be a reference property) of an association.
      * @param classesOnly Boolean value that indicates whether or not a list of class names should be returned rather than actual instances of the classes. These are the classes to which the association objects belong. The default value for this parameter is FALSE.
@@ -911,143 +653,93 @@ public interface Wmi {
      *  </ul>
      * @param client клиент
      */
-    @SuppressWarnings({"OptionalUsedAsFieldOrParameterType"})
-    public void referencesTo(
-        String objectPath,
-        Optional<String> resultClass,
-        Optional<String> role,
-        Optional<Boolean> classesOnly,
-        Optional<Boolean> schemaOnly,
-        Optional<String> requiredQualifier,
-        Optional<Integer> flags,
-        Consumer<WmiObj> client
-    );
+    @Override
+    public void referencesTo(String objectPath, Optional<String> resultClass, Optional<String> role, Optional<Boolean> classesOnly, Optional<Boolean> schemaOnly, Optional<String> requiredQualifier, Optional<Integer> flags, Consumer<WmiObj> client) {
+        target.referencesTo(objectPath, resultClass, role, classesOnly, schemaOnly, requiredQualifier, flags, client);
+    }
 
-    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-    public List<WmiObj> referencesTo(
-        String objectPath,
-        Optional<String> resultClass,
-        Optional<String> role,
-        Optional<Boolean> classesOnly,
-        Optional<Boolean> schemaOnly,
-        Optional<String> requiredQualifier,
-        Optional<Integer> flags
-    );
+    @Override
+    public List<WmiObj> referencesTo(String objectPath, Optional<String> resultClass, Optional<String> role, Optional<Boolean> classesOnly, Optional<Boolean> schemaOnly, Optional<String> requiredQualifier, Optional<Integer> flags) {
+        return target.referencesTo(objectPath, resultClass, role, classesOnly, schemaOnly, requiredQualifier, flags);
+    }
 
-    public void referencesTo(
-        String objectPath,
-        String resultClass,
-        String role,
-        boolean classesOnly,
-        boolean schemaOnly,
-        String requiredQualifier,
-        int flags,
-        Consumer<WmiObj> client
-    );
+    @Override
+    public void referencesTo(String objectPath, String resultClass, String role, boolean classesOnly, boolean schemaOnly, String requiredQualifier, int flags, Consumer<WmiObj> client) {
+        target.referencesTo(objectPath, resultClass, role, classesOnly, schemaOnly, requiredQualifier, flags, client);
+    }
 
-    public List<WmiObj> referencesTo(
-        String objectPath,
-        String resultClass,
-        String role,
-        boolean classesOnly,
-        boolean schemaOnly,
-        String requiredQualifier,
-        int flags
-    );
+    @Override
+    public List<WmiObj> referencesTo(String objectPath, String resultClass, String role, boolean classesOnly, boolean schemaOnly, String requiredQualifier, int flags) {
+        return target.referencesTo(objectPath, resultClass, role, classesOnly, schemaOnly, requiredQualifier, flags);
+    }
 
-    public void referencesTo(
-        String objectPath,
-        String resultClass,
-        String role,
-        boolean classesOnly,
-        boolean schemaOnly,
-        String requiredQualifier,
-        Consumer<WmiObj> client
-    );
+    @Override
+    public void referencesTo(String objectPath, String resultClass, String role, boolean classesOnly, boolean schemaOnly, String requiredQualifier, Consumer<WmiObj> client) {
+        target.referencesTo(objectPath, resultClass, role, classesOnly, schemaOnly, requiredQualifier, client);
+    }
 
-    public List<WmiObj> referencesTo(
-        String objectPath,
-        String resultClass,
-        String role,
-        boolean classesOnly,
-        boolean schemaOnly,
-        String requiredQualifier
-    );
+    @Override
+    public List<WmiObj> referencesTo(String objectPath, String resultClass, String role, boolean classesOnly, boolean schemaOnly, String requiredQualifier) {
+        return target.referencesTo(objectPath, resultClass, role, classesOnly, schemaOnly, requiredQualifier);
+    }
 
-    public void referencesTo(
-        String objectPath,
-        String resultClass,
-        String role,
-        boolean classesOnly,
-        boolean schemaOnly,
-        Consumer<WmiObj> client
-    );
+    @Override
+    public void referencesTo(String objectPath, String resultClass, String role, boolean classesOnly, boolean schemaOnly, Consumer<WmiObj> client) {
+        target.referencesTo(objectPath, resultClass, role, classesOnly, schemaOnly, client);
+    }
 
-    public List<WmiObj> referencesTo(
-        String objectPath,
-        String resultClass,
-        String role,
-        boolean classesOnly,
-        boolean schemaOnly
-    );
+    @Override
+    public List<WmiObj> referencesTo(String objectPath, String resultClass, String role, boolean classesOnly, boolean schemaOnly) {
+        return target.referencesTo(objectPath, resultClass, role, classesOnly, schemaOnly);
+    }
 
-    public void referencesTo(
-        String objectPath,
-        String resultClass,
-        String role,
-        boolean classesOnly,
-        Consumer<WmiObj> client
-    );
+    @Override
+    public void referencesTo(String objectPath, String resultClass, String role, boolean classesOnly, Consumer<WmiObj> client) {
+        target.referencesTo(objectPath, resultClass, role, classesOnly, client);
+    }
 
-    public List<WmiObj> referencesTo(
-        String objectPath,
-        String resultClass,
-        String role,
-        boolean classesOnly
-    );
+    @Override
+    public List<WmiObj> referencesTo(String objectPath, String resultClass, String role, boolean classesOnly) {
+        return target.referencesTo(objectPath, resultClass, role, classesOnly);
+    }
 
-    public void referencesTo(
-        String objectPath,
-        String resultClass,
-        String role,
-        Consumer<WmiObj> client
-    );
+    @Override
+    public void referencesTo(String objectPath, String resultClass, String role, Consumer<WmiObj> client) {
+        target.referencesTo(objectPath, resultClass, role, client);
+    }
 
-    public List<WmiObj> referencesTo(
-        String objectPath,
-        String resultClass,
-        String role
-    );
+    @Override
+    public List<WmiObj> referencesTo(String objectPath, String resultClass, String role) {
+        return target.referencesTo(objectPath, resultClass, role);
+    }
 
-    public void referencesTo(
-        String objectPath,
-        String resultClass,
-        Consumer<WmiObj> client
-    );
+    @Override
+    public void referencesTo(String objectPath, String resultClass, Consumer<WmiObj> client) {
+        target.referencesTo(objectPath, resultClass, client);
+    }
 
-    public List<WmiObj> referencesTo(
-        String objectPath,
-        String resultClass
-    );
+    @Override
+    public List<WmiObj> referencesTo(String objectPath, String resultClass) {
+        return target.referencesTo(objectPath, resultClass);
+    }
 
-    public void referencesTo(
-        String objectPath,
-        Consumer<WmiObj> client
-    );
+    @Override
+    public void referencesTo(String objectPath, Consumer<WmiObj> client) {
+        target.referencesTo(objectPath, client);
+    }
 
-    public List<WmiObj> referencesTo(
-        String objectPath
-    );
-    //endregion
+    @Override
+    public List<WmiObj> referencesTo(String objectPath) {
+        return target.referencesTo(objectPath);
+    }
 
-    //region delete()
     /**
      * The Delete method of the SWbemServices object deletes the class or instance that is specified in the object path. You can only delete objects in the current namespace.
      * If a dynamic provider supplies the class or instance, you cannot delete this object unless the provider supports class or instance deletion.
      * @param objectPath Required. String that contains the object path to the object that you want to delete
      */
-    public void delete(
-        String objectPath
-    );
-    //endregion
+    @Override
+    public void delete(String objectPath) {
+        target.delete(objectPath);
+    }
 }
