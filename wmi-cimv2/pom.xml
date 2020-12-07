@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>wmi</artifactId>
+        <groupId>xyz.cofe</groupId>
+        <version>0.2</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>wmi-cimv2</artifactId>
+    <version>0.1</version>
+
+    <name>wmi calsses of ROOT\CIMV2</name>
+
+    <dependencies>
+        <dependency>
+            <groupId>xyz.cofe</groupId>
+            <artifactId>wmi-base</artifactId>
+            <version>0.2</version>
+        </dependency>
+        <dependency>
+            <groupId>xyz.cofe</groupId>
+            <artifactId>wmi-time</artifactId>
+            <version>0.1</version>
+        </dependency>
+    </dependencies>
+
+</project>
