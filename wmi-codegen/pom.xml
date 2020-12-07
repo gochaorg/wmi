@@ -10,5 +10,24 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>wmi-codegen</artifactId>
+    <version>0.1</version>
+
+    <dependencies>
+        <dependency>
+            <groupId>xyz.cofe</groupId>
+            <artifactId>wmi-base</artifactId>
+            <version>0.2</version>
+        </dependency>
+        <dependency>
+            <groupId>xyz.cofe</groupId>
+            <artifactId>text-out</artifactId>
+            <version>1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>xyz.cofe</groupId>
+            <artifactId>ecolls</artifactId>
+            <version>1.7</version>
+        </dependency>
+    </dependencies>
 
 </project>
