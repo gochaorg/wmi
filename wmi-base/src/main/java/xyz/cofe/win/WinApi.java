@@ -51,6 +51,24 @@ public class WinApi {
     }
 
     /**
+     * тоже самое api()
+     * @param client клиент
+     * @see #api(Consumer)
+     */
+    public static void run(Consumer<WinApi> client){
+        api(client);
+    }
+
+    /**
+     * тоже самое api()
+     * @param client клиент
+     * @see #api(Function)
+     */
+    public static <R> R query(Function<WinApi,R> client){
+        return api(client);
+    }
+
+    /**
      * Соединение с wmi по умолчанию
      * ,более детально см {@link #wmi(String, String, String, String, String, String, Consumer)}
      * @param wmi клиентский код

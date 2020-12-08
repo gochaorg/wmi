@@ -10,6 +10,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>wmi-base</artifactId>
+    <version>0.3</version>
 
     <name>wmi-base</name>
     <description>windows api - wmi base classes</description>
