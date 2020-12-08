@@ -109,7 +109,7 @@ public interface Win32_Process extends WmiObj {
     public static void query(CIMV2Wmi wmi, Consumer<Win32_Process> client){
         if( wmi==null )throw new IllegalArgumentException("wmi==null");
         if( client==null )throw new IllegalArgumentException("client==null");
-        wmi.subclassesOf("Win32_Process", obj -> client.accept(new Win32_ProcessImpl(obj)) );
+        wmi.instancesOf("Win32_Process", obj -> client.accept(new Win32_ProcessImpl(obj)) );
     }
 
     public static List<Win32_Process> query(CIMV2Wmi wmi){
