@@ -16,13 +16,18 @@ public class TypeGen {
         this.wmiObj = wmiObj;
     }
 
-    private List<String> packaje = new ArrayList<>();
+    protected void log(String message){
+        System.out.println(message);
+    }
+
+    //region package
+    private final List<String> packaje = new ArrayList<>();
     public String getPackage(){
         if( packaje.size()>0 ){
             if( packaje.size()>1 ){
                 return packaje.stream().reduce((a,b)->a+"."+b).get();
             }else{
-                packaje.get(0);
+                return packaje.get(0);
             }
         }
         return "";
@@ -33,6 +38,7 @@ public class TypeGen {
         packaje.addAll(Arrays.asList(pkg.split("\\.")));
     }
     public boolean isPackageDefined(){ return !packaje.isEmpty(); }
+    //endregion
 
     public String getInterfaceName(){
         ArrayList<String> name = new ArrayList<>(packaje);
@@ -46,9 +52,14 @@ public class TypeGen {
         }
     }
 
+    //region implSuff
     protected String implSuff = "Impl";
     public String getImplSuff() { return implSuff; }
-    public void setImplSuff(String implSuff) { this.implSuff = implSuff; }
+    public void setImplSuff(String implSuff) {
+        if( implSuff==null )throw new IllegalArgumentException("implSuff==null");
+        this.implSuff = implSuff;
+    }
+    //endregion
 
     public String getInterfaceImplName(){
         ArrayList<String> name = new ArrayList<>(packaje);
@@ -61,7 +72,6 @@ public class TypeGen {
             return "??";
         }
     }
-
     public File getInterfaceFile(File root){
         if( root==null )throw new IllegalArgumentException("root==null");
         File trgt = root;
@@ -71,7 +81,32 @@ public class TypeGen {
         trgt = trgt.resolve(wmiObj.getWmiPath().getClazz()+".java");
         return trgt;
     }
+    public File getInterfaceImplFile(File root){
+        if( root==null )throw new IllegalArgumentException("root==null");
+        File trgt = root;
+        for( String name : packaje ){
+            trgt = trgt.resolve(name);
+        }
+        trgt = trgt.resolve(wmiObj.getWmiPath().getClazz()+getImplSuff()+".java");
+        return trgt;
+    }
 
+    public Optional<String> getWmiRefType(SWbemProperty prop){
+        if( prop==null )throw new IllegalArgumentException("prop==null");
+        if( WbemCIMType.REFERENCE!=prop.getCIMType() )return Optional.empty();
+
+        Optional<String> refOpt = prop.getWmiQualifiers()
+            .filter(p->p.getName().equalsIgnoreCase("CIMTYPE"))
+            .first(p->p.getVariant().getString());
+        if( !refOpt.isPresent() )return Optional.empty();
+
+        String ref = refOpt.get();
+        if( ref.startsWith("ref:") && ref.length()>4 ){
+            return Optional.of(ref.substring(4));
+        }
+
+        return Optional.empty();
+    }
     public Result<String> generatePropImpl(SWbemProperty prop){
         if( prop==null )throw new IllegalArgumentException("prop==null");
         if( prop.isArray() ){
@@ -94,26 +129,30 @@ public class TypeGen {
         if( prop.isArray() ){
             return Result.fail("/* property "+prop.getName()+" : array - not supported */\n");
         }
+
         BaseType bt = BaseType.of(prop.getCIMType());
         if( bt!=null ){
             return Result.ok(bt.codeReadPropDecl(prop.getName()));
         }
 
-        return Result.fail("/* property"+
+        String message = "property"+
             " name="+prop.getName()+
             " type="+prop.getCIMType()+
             (prop.getReference().map(r->" ref="+r.getWmiPath().getClazz()).orElse(""))+
-            " -  not supported */\n");
+            " -  not supported";
+
+        log(message);
+        return Result.fail("/* "+message+" */\n");
     }
 
-    public Result<String> generateIterface(){
+    public Result<String> generateInterface(){
         StringWriter sw = new StringWriter();
         Output out = new Output(sw);
 
         out.setLinePrefix("");
 
         if( isPackageDefined() ){
-            out.println("packge "+getPackage()+";");
+            out.println("package "+getPackage()+";");
             out.println();
         }
 
@@ -134,7 +173,6 @@ public class TypeGen {
 
         return Result.ok(sw.toString());
     }
-
     public Result<String> generateInterfaceImpl(){
         StringWriter sw = new StringWriter();
         Output out = new Output(sw);
@@ -142,7 +180,7 @@ public class TypeGen {
         out.setLinePrefix("");
 
         if( isPackageDefined() ){
-            out.println("packge "+getPackage()+";");
+            out.println("package "+getPackage()+";");
             out.println();
         }
 
@@ -153,6 +191,26 @@ public class TypeGen {
         out.println();
 
         out.println("public class "+getInterfaceImplName()+" extends WmiObjImpl implements "+getInterfaceName()+" {");
+
+        out.setLinePrefix("  ");
+        out.println(
+            "public "+getInterfaceImplName()+"(ActiveXComponent activeXComponent) {\n" +
+            "  super(activeXComponent);\n" +
+            "}");
+        out.println(
+            "public "+getInterfaceImplName()+"(ActiveXComponent activeXComponent, Wmi wmi) {\n" +
+            "  super(activeXComponent, wmi);\n" +
+            "}");
+        out.println(
+            "public "+getInterfaceImplName()+"(GetActiveXComponent activeXComponent) {\n" +
+            "  super(activeXComponent.getActiveXComponent());\n" +
+            "}");
+        out.println(
+            "public "+getInterfaceImplName()+"(GetActiveXComponent activeXComponent, Wmi wmi) {\n" +
+            "  super(activeXComponent.getActiveXComponent(), wmi);\n" +
+            "}"
+        );
+
         wmiObj.getWmiProperties().forEach( wprop -> {
             out.setLinePrefix("  ");
             out.println(generatePropImpl(wprop).getResult());
@@ -162,5 +220,34 @@ public class TypeGen {
         out.println("}");
 
         return Result.ok(sw.toString());
+    }
+
+    public void generateFiles(String root){
+        if( root==null )throw new IllegalArgumentException("root==null");
+        generateFiles(new File(root));
+    }
+    public void generateFiles(File root){
+        if( root==null )throw new IllegalArgumentException("root==null");
+        log("generateFiles into "+root);
+
+        log("generate interface of "+wmiObj.getWmiPath().getClazz());
+
+        File itfFile = getInterfaceFile(root);
+        log("  into "+itfFile);
+
+        String itfContent = generateInterface().getResult();
+        File itfDir = itfFile.getParent();
+        if( !itfDir.exists() )itfDir.createDirectories();
+        itfFile.writeText(itfContent,"utf-8");
+
+        log("generate implementation of "+wmiObj.getWmiPath().getClazz());
+
+        File implFile = getInterfaceImplFile(root);
+        log("  into "+implFile);
+
+        String implContent = generateInterfaceImpl().getResult();
+        File implDir = implFile.getParent();
+        if( !implDir.exists() )implDir.createDirectories();
+        implFile.writeText(implContent,"utf-8");
     }
 }

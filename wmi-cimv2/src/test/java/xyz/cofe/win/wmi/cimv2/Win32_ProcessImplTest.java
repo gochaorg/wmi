@@ -77,8 +77,8 @@ public class Win32_ProcessImplTest {
                     System.out.println("terminate");
                     prc.terminate(1);
                 }else{
-                    Variant v = Dispatch.call(wclz.getActiveXComponent(),"GetLastErrorMsg");
-                    System.out.println(v);
+//                    Variant v = Dispatch.call(wclz.getActiveXComponent(),"GetLastErrorMsg");
+//                    System.out.println(v);
                 }
             });
         });

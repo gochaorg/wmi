@@ -52,6 +52,30 @@ public interface BaseType {
         return sw.toString();
     }
 
+    public static String implOptional(String propName, String propType, Function<String,String> readValue){
+        StringWriter sw = new StringWriter();
+        Output out = new Output(sw);
+        out.setLinePrefix("");
+        out.println("public java.util.Optional<"+propType+"> get"+propName+"(){");
+
+        out.setLinePrefix("  ");
+        out.println("ActiveXComponent ax = getActiveXComponent();");
+        out.println("if( ax==null )throw new IllegalStateException(\"activeXComponent is null\");");
+        out.println("Variant v = ax.getProperty(\""+propName+"\");");
+        out.println("if( v==null || v.isNull() )return java.util.Optional.empty();");
+        out.println("return java.util.Optional.of("+readValue.apply("v")+");");
+
+        out.setLinePrefix("");
+        out.println("}");
+        return sw.toString();
+    }
+    public static String declOptional(String propName,String propType){
+        StringWriter sw = new StringWriter();
+        Output out = new Output(sw);
+        out.println("public java.util.Optional<"+propType+"> get"+propName+"();");
+        return sw.toString();
+    }
+
     public static BaseType baseType(String baseType, boolean nullable, Function<String,String> readValue, WbemCIMType ... cimTypes){
         return new BaseType() {
             @Override
@@ -73,6 +97,25 @@ public interface BaseType {
             }
         };
     }
+    public static BaseType optionalType(String baseType, Function<String,String> readValue, WbemCIMType ... cimTypes){
+        return new BaseType() {
+            @Override
+            public String codeReadPropImpl(String propName) {
+                return implOptional(propName,baseType,readValue);
+            }
+
+            @Override
+            public String codeReadPropDecl(String propName) {
+                return declOptional(propName,baseType);
+            }
+
+            @Override
+            public WbemCIMType[] cimTypes() {
+                return cimTypes;
+            }
+        };
+    }
+
     //region basic numeric types
     public static final BaseType BYTE = baseType(
         "byte", false, varName -> varName+".getByte()",
@@ -99,19 +142,25 @@ public interface BaseType {
         WbemCIMType.REAL64
     );
     //endregion
+    //region boolean
     public static final BaseType BOOLEAN = baseType(
         "boolean", false, varName -> varName+".getBoolean()",
         WbemCIMType.BOOLEAN
     );
+    //endregion
+    //region string
     public static final BaseType STRING = baseType(
         "String", true, varName -> varName+".getString()",
         WbemCIMType.STRING
     );
-    public static final BaseType DATE = baseType(
-        "java.util.Optional<java.time.OffsetDateTime>", true, varName ->
-            "xyz.cofe.win.wmi.time.ParseTime.parse("+varName+".getString())",
+    //endregion
+    //region date
+    public static final BaseType DATE = optionalType(
+        "java.time.OffsetDateTime",
+            varName -> "xyz.cofe.win.wmi.time.ParseTime.parse("+varName+".getString())",
         WbemCIMType.DATETIME
     );
+    //endregion
 
     public static final BaseType[] baseTypes = new BaseType[]{
         BYTE, SHORT, INT, LONG, FLOAT, DOUBLE, BOOLEAN, STRING, DATE

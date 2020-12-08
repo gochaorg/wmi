@@ -143,4 +143,17 @@ public interface MSFT_NetTCPConnection extends WmiObj {
     public java.util.Optional<java.time.OffsetDateTime> getTimeOfLastStateChange();
 
     public short getTransitioningToState();
+
+    public static void query(StdCIMV2Wmi wmi, Consumer<MSFT_NetTCPConnection> client){
+        if( wmi==null )throw new IllegalArgumentException("wmi==null");
+        if( client==null )throw new IllegalArgumentException("client==null");
+        wmi.subclassesOf("MSFT_NetTCPConnection", obj -> client.accept(new MSFT_NetTCPConnectionImpl(obj)) );
+    }
+
+    public static List<MSFT_NetTCPConnection> query(StdCIMV2Wmi wmi){
+        if( wmi==null )throw new IllegalArgumentException("wmi==null");
+        ArrayList<MSFT_NetTCPConnection> list = new ArrayList<>();
+        query(wmi,list::add);
+        return list;
+    }
 }
