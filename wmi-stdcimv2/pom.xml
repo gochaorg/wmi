@@ -18,7 +18,7 @@
         <dependency>
             <groupId>xyz.cofe</groupId>
             <artifactId>wmi-base</artifactId>
-            <version>0.2</version>
+            <version>0.3</version>
         </dependency>
         <dependency>
             <groupId>xyz.cofe</groupId>

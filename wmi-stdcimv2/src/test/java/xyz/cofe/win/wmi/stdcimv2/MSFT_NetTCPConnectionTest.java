@@ -26,4 +26,20 @@ public class MSFT_NetTCPConnectionTest {
             });
         });
     }
+
+    @Test
+    public void test02(){
+        WinApi.api(api->{
+            StdCIMV2Wmi.wmi(api,wmi->{
+                MSFT_NetTCPConnection.query(wmi, conn->{
+                    System.out.println(
+                        conn.getLocalAddress()+":"+conn.getLocalPort()+" -> "+
+                            conn.getRemoteAddress()+":"+conn.getRemotePort()+" "+
+                            "pid="+conn.getOwningProcess()+
+                            " "+conn.getState()
+                    );
+                });
+            });
+        });
+    }
 }
