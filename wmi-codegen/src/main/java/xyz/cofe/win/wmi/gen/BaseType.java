@@ -69,6 +69,27 @@ public interface BaseType {
         out.println("}");
         return sw.toString();
     }
+    public static String implOptional(String propName, String propType, Function<String,String> readValue, boolean retOptOf){
+        StringWriter sw = new StringWriter();
+        Output out = new Output(sw);
+        out.setLinePrefix("");
+        out.println("public java.util.Optional<"+propType+"> get"+propName+"(){");
+
+        out.setLinePrefix("  ");
+        out.println("ActiveXComponent ax = getActiveXComponent();");
+        out.println("if( ax==null )throw new IllegalStateException(\"activeXComponent is null\");");
+        out.println("Variant v = ax.getProperty(\""+propName+"\");");
+        out.println("if( v==null || v.isNull() )return java.util.Optional.empty();");
+        if( retOptOf ){
+            out.println("return java.util.Optional.of(" + readValue.apply("v") + ");");
+        }else{
+            out.println("return " + readValue.apply("v") + ";");
+        }
+
+        out.setLinePrefix("");
+        out.println("}");
+        return sw.toString();
+    }
     public static String declOptional(String propName,String propType){
         StringWriter sw = new StringWriter();
         Output out = new Output(sw);
@@ -102,6 +123,24 @@ public interface BaseType {
             @Override
             public String codeReadPropImpl(String propName) {
                 return implOptional(propName,baseType,readValue);
+            }
+
+            @Override
+            public String codeReadPropDecl(String propName) {
+                return declOptional(propName,baseType);
+            }
+
+            @Override
+            public WbemCIMType[] cimTypes() {
+                return cimTypes;
+            }
+        };
+    }
+    public static BaseType optionalType(String baseType, Function<String,String> readValue, boolean retOpt, WbemCIMType ... cimTypes){
+        return new BaseType() {
+            @Override
+            public String codeReadPropImpl(String propName) {
+                return implOptional(propName,baseType,readValue,retOpt);
             }
 
             @Override
@@ -157,14 +196,15 @@ public interface BaseType {
     //region date
     public static final BaseType DATE = optionalType(
         "java.time.OffsetDateTime",
-            varName -> "xyz.cofe.win.wmi.time.ParseTime.parse("+varName+".getString())",
+            varName -> "xyz.cofe.win.wmi.time.ParseTime.parse("+varName+".getString())", false,
         WbemCIMType.DATETIME
     );
     //endregion
-
+    //region baseTypes : BaseType[]
     public static final BaseType[] baseTypes = new BaseType[]{
         BYTE, SHORT, INT, LONG, FLOAT, DOUBLE, BOOLEAN, STRING, DATE
     };
+    //endregion
 
     public static BaseType of(WbemCIMType cimType){
         if( cimType==null )throw new IllegalArgumentException("cimType==null");
