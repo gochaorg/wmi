@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 public interface Win32_SessionResource extends WmiObj {
-  public java.util.Optional<Win32_LogicalElement> getAntecedent();
+  public java.util.Optional<WmiObj> getAntecedent();
   
   public java.util.Optional<Win32_Session> getDependent();
   
